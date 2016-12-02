@@ -11,7 +11,7 @@ start cmd /c "go run app.go" 8083 8081
 pause
 
 
-This start 3 processes. The first argument is the listening port and the second is the sending port. They must make a complete circle
+This starts 3 processes. The first argument is the listening port and the second is the sending port. They must make a complete circle
 
 
 If a process hangs and the ports become unusable, use see.bat and kill.bat to remove them.
