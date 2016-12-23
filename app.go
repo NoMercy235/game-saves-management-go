@@ -10,6 +10,7 @@ import (
 func processLogic(self api.State) {
 	go api.CheckLeader(self)
 	go api.GenerateInput(self)
+	//call the other functions as they are made
 }
 
 func main() {

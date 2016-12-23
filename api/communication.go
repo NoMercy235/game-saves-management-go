@@ -1,10 +1,16 @@
 package api
 
+/*
+This file will be used only for communication. Basically, the functions Send and Listen should do all that is required
+for now but they may be subject to change
+ */
+
 import (
 	"net"
 	"fmt"
 	"bufio"
 )
+
 
 // attempts to send a message on a port
 // onSuccess: return 0
