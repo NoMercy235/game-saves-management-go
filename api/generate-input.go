@@ -3,8 +3,9 @@ import (
 	"math/rand"
 	"time"
 	"strconv"
+	"bytes"
 )
-func GenerateInput(self State) []string{
+func GenerateInput(self State) {
 	/*
 	Think of a standard format of sending saves. We shouldn't bother with JSON. just send a string and parse it
 	with indexOf or something of the sort.
