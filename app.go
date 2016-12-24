@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	var self api.State;
+	var self api.State
 	self.ListenPort = os.Args[1]
 	self.AllPorts = os.Args[2:]
 	self.IsLeader = false

@@ -6,4 +6,5 @@ type State struct {
 	AllPorts []string
 	LeaderPort string
 	IsLeader bool
+	Message []string
 }
