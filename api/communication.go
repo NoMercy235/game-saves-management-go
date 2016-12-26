@@ -60,7 +60,7 @@ func Listen(self *State) (int) {
 		for i := 0; i < len(self.Callbacks); i++ {
 			self.Callbacks[i](self, msg)
 		}
-		println("Received:" + msg)
+		//println("Received:" + msg)
 
 		conn.Write([]byte("\n"))
 	}

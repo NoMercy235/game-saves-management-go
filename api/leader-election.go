@@ -27,16 +27,12 @@ This file should do the following:
  exactly all of this is happening
  */
 
-var TokenChan chan string = make(chan string)
-var token string = "this15aH4rdT0k3n" //this should be random I think
-
+func RegisterTokenCallback(self *State){
+	self.RegisterCallback(registerTokenCallback)
+}
 
 func registerTokenCallback(cbSelf *State, message string)  {
 	println("Sunt in token callback. Am primit: " + message)
-}
-
-func RegisterTokenCallback(self *State){
-	RegisterCallback(self, registerTokenCallback)
 }
 
 func CheckLeader(self *State){
@@ -47,12 +43,8 @@ func CheckLeader(self *State){
 }
 
 func chooseLeader(self *State){
-	//for i := 0; i < len(self.AllPorts); i++ {
-	//	if(self.AllPorts[i] != self.ListenPort){
-			result := Send(self, "token")
-			if result == -1 {
-				println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
-			}
-		//}
-	//}
+	result := Send(self, self.GenerateLeaderToken())
+	if result == -1 {
+		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
+	}
 }

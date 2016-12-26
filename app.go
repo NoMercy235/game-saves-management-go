@@ -30,8 +30,10 @@ func main() {
 	self.ListenPort = os.Args[1]
 	self.AllPorts = os.Args[2:]
 	self.IsLeader = false
-	self.SendPort = api.GetNextNeighbor(self)
-	api.PrintState(*self)
+	self.SetNextNeighbor()
+	self.SetPID()
+	self.PrintState()
+
 	go processLogic(self)
 
 	// keep alive
