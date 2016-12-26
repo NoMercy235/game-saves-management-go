@@ -9,8 +9,6 @@ import (
 	"net"
 	"fmt"
 	"bufio"
-	//"reflect"
-	"strconv"
 )
 
 
@@ -59,32 +57,9 @@ func Listen(self *State) (int) {
 			conn.Close()
 			break;
 		}
-		println("callbacks length" + strconv.Itoa(len(self.Callbacks)))
 		for i := 0; i < len(self.Callbacks); i++ {
-			println("Apelez callback")
 			self.Callbacks[i](self, msg)
 		}
-		//for _, fi := range self.Callbacks {
-		//	f := reflect.ValueOf(fi)
-		//	functype := f.Type()
-		//	good := false
-		//	for i:=0; i<functype.NumIn(); i++ {
-		//		if "int"==functype.In(i).String() {
-		//			good = true // yes, there is an int among inputs
-		//			break
-		//		}
-		//	}
-		//	for i:=0; i<functype.NumOut(); i++ {
-		//		if "int"==functype.Out(i).String() {
-		//			good = true // yes, there is an int among outputs
-		//			break
-		//		}
-		//	}
-		//	if good {
-		//		fmt.Println(f)
-		//	}
-		//}
-
 		println("Received:" + msg)
 
 		conn.Write([]byte("\n"))

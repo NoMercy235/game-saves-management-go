@@ -10,6 +10,5 @@ type State struct {
 }
 
 func RegisterCallback(self *State, function func(self *State, message string)) {
-	println("am pus callback:  " + GetFunctionName(function))
 	self.Callbacks = append(self.Callbacks, function)
 }
