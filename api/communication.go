@@ -9,21 +9,24 @@ import (
 	"net"
 	"fmt"
 	"bufio"
+	//"reflect"
+	"strconv"
 )
 
 
 // attempts to send a message on a port
 // onSuccess: return 0
 // onFail: return -1
-func Send(self State) (int) {
+func Send(self *State, message string) (int) {
 	// send to self.sendPort
-	println("started sending on " + self.SendPort)
+	//println("started sending on " + self.SendPort)
 	conn, err := net.Dial("tcp", "localhost:" + self.SendPort)
 	if err != nil {
 		fmt.Println(err)
 		return -1
 	}
 
+	fmt.Fprintf(conn, message + "\n")
 	_, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		fmt.Println(err)
@@ -35,7 +38,7 @@ func Send(self State) (int) {
 
 // continuously listening to messages
 // onFail: return -1
-func Listen(self State) (int) {
+func Listen(self *State) (int) {
 	// listen to self.listenPort
 	println("started listening on " + self.ListenPort)
 	ln, _ := net.Listen("tcp", "localhost:" + self.ListenPort)
@@ -56,6 +59,33 @@ func Listen(self State) (int) {
 			conn.Close()
 			break;
 		}
+		println("callbacks length" + strconv.Itoa(len(self.Callbacks)))
+		for i := 0; i < len(self.Callbacks); i++ {
+			println("Apelez callback")
+			self.Callbacks[i](self, msg)
+		}
+		//for _, fi := range self.Callbacks {
+		//	f := reflect.ValueOf(fi)
+		//	functype := f.Type()
+		//	good := false
+		//	for i:=0; i<functype.NumIn(); i++ {
+		//		if "int"==functype.In(i).String() {
+		//			good = true // yes, there is an int among inputs
+		//			break
+		//		}
+		//	}
+		//	for i:=0; i<functype.NumOut(); i++ {
+		//		if "int"==functype.Out(i).String() {
+		//			good = true // yes, there is an int among outputs
+		//			break
+		//		}
+		//	}
+		//	if good {
+		//		fmt.Println(f)
+		//	}
+		//}
+
+		println("Received:" + msg)
 
 		conn.Write([]byte("\n"))
 	}

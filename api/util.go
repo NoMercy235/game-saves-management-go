@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"runtime"
+	"reflect"
 )
 
 func PrintState(self State) {
@@ -13,7 +15,7 @@ func PrintState(self State) {
 /*
 This function gets a state and populates the SendPort property based on the state's place in the topology array
  */
-func GetNextNeighbor(self State) (string) {
+func GetNextNeighbor(self *State) (string) {
 	for index, port := range self.AllPorts {
 		if self.ListenPort == port {
 			neighborIndex := -1
@@ -35,4 +37,8 @@ func RandomString(strlen int) string {
 		result[i] = chars[rand.Intn(len(chars))]
 	}
 	return string(result)
+}
+
+func GetFunctionName(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"bytes"
 )
-func GenerateInput(self State) {
+func GenerateInput(self *State) {
 	/*
 	Think of a standard format of sending saves. We shouldn't bother with JSON. just send a string and parse it
 	with indexOf or something of the sort.
@@ -28,7 +28,7 @@ func GenerateInput(self State) {
 }
 
 
-func generateCommand(self State) string{
+func generateCommand(self *State) string{
 	if(self.IsLeader){
 		return ""
 	}
