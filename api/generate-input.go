@@ -27,7 +27,11 @@ func GenerateInput(self *State) {
 	//call generateCommand(self). Think of a way to send the message afterwards. :-?
 }
 
-
+/*
+This is a private function that handles generation of command such as:
+write,filename:'first-player.save',life:100, money:0,tag:'first save'
+read,filename:'first-player.save',tag:'first save'
+ */
 func generateCommand(self *State) string{
 	if(self.IsLeader){
 		return ""

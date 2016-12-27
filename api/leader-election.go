@@ -32,10 +32,20 @@ This file should do the following:
  exactly all of this is happening
  */
 
+/*
+This function simply registers the registerTokenCallback on the current state. Could've done it directly, but, in case
+there'll be more callbacks here, it's better to leave a single function to do the work.
+ */
 func RegisterTokenCallback(self *State){
 	self.RegisterCallback(registerTokenCallback)
 }
 
+/*
+This is the callback that handles the leader election algorithm. It should handle the case where the message received
+is not related to the election algorithm (it's not of type token:[randomString],pid:[pid]). We could try some
+token validation (instead of randomly generating them, we could (encrypt) the PID of the receiving token and send it,
+ot send a text ecrypted using the PID of the receving process as a key. IDK :-? )
+ */
 func registerTokenCallback(self *State, message string)  {
 	messageParts := strings.Split(message, ",")
 	pid := messageParts[1][4:]
@@ -44,20 +54,36 @@ func registerTokenCallback(self *State, message string)  {
 		pid = strconv.Itoa(self.PID)
 	} else
 	if self.PID == intPid {
-		// this process becomes the leader. here, the algorithm should stom
+		// this process becomes the leader. here, the algorithm should stop
+		// set the LeaderPort and IsLeader fields
+		// make sure everyone knows who's the leader
 		println("**** I, " + self.ListenPort + ", am the leader! ***")
 	}
 	newToken := messageParts[0] + ",pid=" + pid
 	go Send(self, newToken)
 }
 
+/*
+This function is called from the processLogic function of the app.go file and should handle the logic of starting the
+leader election algorithm whenever there is no leader present. That includes the following cases:
+- The application just started and there's no leader present
+- The leader hasn't responded for some time, is considered down, and a new one should be elected
+ */
 func CheckLeader(self *State){
+	/*
+	This is a hack and MUST be changed. It means that, when the application starts, it will initiate the leader
+	election algorithm only if the process is listening on port 8081. Could work without that, but it ust be tested
+	 */
 	if self.LeaderPort == "" && self.ListenPort == "8081" {
 		println("Starting leader algorithm from: " + self.ListenPort)
 		chooseLeader(self)
 	}
 }
 
+/*
+This function simply sends a message. If there won't be any other logic necessary, it could very well reside in the
+CheckLeader function
+ */
 func chooseLeader(self *State){
 	//Send(self, self.GenerateLeaderToken())
 	result := Send(self, self.GenerateLeaderToken())

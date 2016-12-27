@@ -6,7 +6,7 @@ import (
 	"./api"
 )
 
-
+// Registering callbacks for the state from across every files
 func registerAllCallbacks(self *api.State) {
 	api.RegisterTokenCallback(self)
 }
@@ -26,6 +26,7 @@ func main() {
 		return
 	}
 
+	// The state was changed to a pointer to allow its manipulation within functions
 	var self *api.State = new(api.State)
 	self.ListenPort = os.Args[1]
 	self.AllPorts = os.Args[2:]
