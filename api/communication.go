@@ -40,6 +40,36 @@ func Send(self *State, message string) (int) {
 	return 0
 }
 
+func PingEveryone(self *State) {
+	for i := 0; i < len(self.AllPorts); i ++ {
+		if self.AllPorts[i] != self.ListenPort {
+			go ping(self, self.AllPorts[i])
+		}
+	}
+}
+
+func ping(self *State, port string) {
+	println("SENDING TO " + port)
+	conn, err := net.Dial("tcp", "localhost:" + port)
+	if err != nil {
+		fmt.Println(err)
+		time.Sleep(10000 * time.Millisecond)
+		return
+	}
+
+	for {
+		time.Sleep(1 * time.Second)
+		fmt.Fprintf(conn, "PING FROM" + self.ListenPort + "\n")
+		_, err = bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+			time.Sleep(10000 * time.Millisecond)
+			return
+		}
+	}
+	return
+}
+
 // attempts to send a message on a port
 // onSuccess: return 0
 // onFail: return -1
@@ -59,7 +89,6 @@ func SendLeader(self *State, message string) (int) {
 		println("INEP SA TRIMIT CATRE LEADER")
 		//println("mesage sent: " + message)
 		fmt.Fprintf(self.SendLeaderConn, message + "\n")
-		println("am trimis de pe " + self.ListenPort)
 		_, err := bufio.NewReader(self.SendLeaderConn).ReadString('\n')
 		if err != nil {
 			fmt.Println(err)
@@ -81,54 +110,36 @@ func Listen(self *State) (int) {
 		time.Sleep(10000 * time.Millisecond)
 		return -1
 	}
-	if self.ListenConn == nil {
-		var err error
-		self.ListenConn, err =ln.Accept()
-		if err != nil {
-			fmt.Println(err)
-			time.Sleep(10000 * time.Millisecond)
-			return -1
-		}
-	}
 
 	// this might be helpful in the future to send a timeout. if used, care for the delay below. it should be greater than that
 	//conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	for {
-		msg, err := bufio.NewReader(self.ListenConn).ReadString('\n')
+		conn, _ := ln.Accept()
+		go handleConnection(self, conn)
+	}
+	println("*** Process " + self.ListenPort + " is no longer listening! ***")
+	return 0
+}
+
+func handleConnection(self *State, conn net.Conn){
+	for {
+		msg, err := bufio.NewReader(conn).ReadString('\n')
 		time.Sleep(500 * time.Millisecond)  // This delay is just to help visualize the communication, since there are a lot of messages.
 		if err != nil {
-			self.ListenConn.Close()
+			conn.Close()
 			fmt.Println(err)
-			println("AM DAT EROATE AICI")
 			time.Sleep(10000 * time.Millisecond)
-			return -1
+			break
 		}
 		println("Received:" + msg[:(len(msg)-1)])
-		self.ListenConn.Write([]byte("\n"))
+		conn.Write([]byte("\n"))
 		if msg == "close\n" {
-			self.ListenConn.Close()
+			conn.Close()
 			break;
 		}
 		for i := 0; i < len(self.Callbacks); i++ {
 			go self.Callbacks[i](self, msg[:(len(msg)-1)]) // msg[:(len(msg)-2)]) it's the msg without the '\n' from the end
 		}
 	}
-	println("*** Process " + self.ListenPort + " is no longer listening! ***")
-	return 0
 }
-//
-//func startListeningForConnections(ln net.Listener) (int) {
-//	println("Leader TRYING TO LISTEN ON --- " + currentProcess.ListenPort)
-//	conn, _ := ln.Accept()
-//	for {
-//		dec := gob.NewDecoder(conn)
-//		message := &LeaderElectionMessage{}
-//		dec.Decode(message)
-//		if (message.IsPing == true) {
-//			println("Recieved ping request");
-//		}
-//		conn.Write([]byte("\n"));
-//	}
-//	return 0
-//}

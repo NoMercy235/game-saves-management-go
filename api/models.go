@@ -26,6 +26,7 @@ type State struct {
 	SendConn net.Conn
 	SendLeaderConn net.Conn
 	ListenConn net.Conn
+	Listener net.Listener
 }
 
 

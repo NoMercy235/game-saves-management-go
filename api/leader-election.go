@@ -102,17 +102,7 @@ func leaderTokenCallback(self *State, message string)  {
 
 func hasLeaderCallback(self *State, message string){
 	if self.LeaderPort != "" && self.ListenPort != self.LeaderPort{
-		//time.Sleep(5 * time.Second)
-		//self.SendConn.Close()
-		//self.SendConn = nil;
-		//self.SendPort = self.LeaderPort
 		go pingLeader(self)
-	} else
-	if self.LeaderPort != "" && self.ListenPort == self.LeaderPort {
-		//time.Sleep(5 * time.Second)
-		//self.ListenConn.Close()
-		//self.ListenConn = nil
-		//go Listen(self)
 	}
 }
 

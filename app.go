@@ -17,6 +17,7 @@ func processLogic(self *api.State) {
 	go api.Listen(self)
 	go api.CheckLeader(self)
 	go api.GenerateInput(self)
+	//go api.PingEveryone(self)
 	//call the other functions as they are made
 }
 
