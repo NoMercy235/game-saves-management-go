@@ -1,5 +1,10 @@
 package api
 
+import (
+	"strings"
+	"strconv"
+)
+
 //import "time"
 
 
@@ -31,20 +36,32 @@ func RegisterTokenCallback(self *State){
 	self.RegisterCallback(registerTokenCallback)
 }
 
-func registerTokenCallback(cbSelf *State, message string)  {
-	println("Sunt in token callback. Am primit: " + message)
+func registerTokenCallback(self *State, message string)  {
+	messageParts := strings.Split(message, ",")
+	pid := messageParts[1][4:]
+	intPid, _ := strconv.Atoi(messageParts[1])
+	if self.PID > intPid {
+		pid = strconv.Itoa(self.PID)
+	} else
+	if self.PID == intPid {
+		// this process becomes the leader
+		println("I, " + self.ListenPort + ", am the leader")
+	}
+	newToken := messageParts[0] + "," + pid
+	go Send(self, newToken)
 }
 
 func CheckLeader(self *State){
-	if self.LeaderPort == "" {
+	if self.LeaderPort == "" && self.ListenPort == "8081" {
 		println("Starting leader algorithm from: " + self.ListenPort)
 		chooseLeader(self)
 	}
 }
 
 func chooseLeader(self *State){
-	result := Send(self, self.GenerateLeaderToken())
-	if result == -1 {
-		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
-	}
+	Send(self, self.GenerateLeaderToken())
+	//result := Send(self, self.GenerateLeaderToken())
+	//if result == -1 {
+	//	println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
+	//}
 }

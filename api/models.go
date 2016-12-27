@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"fmt"
+	"net"
 )
 
 type State struct {
@@ -14,11 +15,13 @@ type State struct {
 	IsLeader bool
 	Callbacks []func(self *State, message string)
 	PID int
+	TokenChan chan string
+	SendConn net.Conn
 }
 
 
 func (this *State) PrintState() {
-	fmt.Printf("State config: \nSend port: %s\nListen port: %s \nNetwork config: %s\n\n\n", this.SendPort, this.ListenPort, this.AllPorts)
+	fmt.Printf("State config: \nPID: %d \nSend port: %s\nListen port: %s \nNetwork config: %s\n\n\n", this.PID, this.SendPort, this.ListenPort, this.AllPorts)
 }
 
 /*
