@@ -62,7 +62,7 @@ func registerTokenCallback(self *State, message string)  {
 	}
 
 	messageParts := strings.Split(message, ",")
-	pid := messageParts[1][4:]
+	_, pid := GetKeyValuePair(messageParts[1])
 	intPid, _ := strconv.Atoi(pid)
 	leaderMsg := ""
 
