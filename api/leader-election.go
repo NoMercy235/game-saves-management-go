@@ -47,6 +47,20 @@ token validation (instead of randomly generating them, we could (encrypt) the PI
 ot send a text ecrypted using the PID of the receving process as a key. IDK :-? )
  */
 func registerTokenCallback(self *State, message string)  {
+	if strings.Index(message, "token") == -1 && strings.Index(message, "pid") == -1 {
+		// this message has nothing to do with the leader election algorithm, so we just ignore it
+		return;
+	} else {
+		key, token := GetKeyValuePair(strings.Split(message, ",")[0])
+		// The length of the token is hardcoded in the GenerateLeaderToken() function. Should probably make it a
+		// constant somewhere
+		if key != "token" && len(token) != 10 {
+			//message is malformed or invalid
+			println("Malformed or invalid message: [" + message + "] on process: " + self.ListenPort)
+			return ;
+		}
+	}
+
 	messageParts := strings.Split(message, ",")
 	pid := messageParts[1][4:]
 	intPid, _ := strconv.Atoi(pid)
