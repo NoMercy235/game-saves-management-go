@@ -24,6 +24,8 @@ type State struct {
 	Callbacks []func(self *State, message string)
 	PID int
 	SendConn net.Conn
+	SendLeaderConn net.Conn
+	ListenConn net.Conn
 }
 
 

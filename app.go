@@ -8,7 +8,7 @@ import (
 
 // Registering callbacks for the state from across every files
 func registerAllCallbacks(self *api.State) {
-	api.RegisterTokenCallback(self)
+	api.RegisterLeaderCallbacks(self)
 }
 
 

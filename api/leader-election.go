@@ -36,8 +36,9 @@ This file should do the following:
 This function simply registers the registerTokenCallback on the current state. Could've done it directly, but, in case
 there'll be more callbacks here, it's better to leave a single function to do the work.
  */
-func RegisterTokenCallback(self *State){
-	self.RegisterCallback(registerTokenCallback)
+func RegisterLeaderCallbacks(self *State){
+	self.RegisterCallback(leaderTokenCallback)
+	self.RegisterCallback(hasLeaderCallback)
 }
 
 /*
@@ -46,7 +47,7 @@ is not related to the election algorithm (it's not of type token:[randomString],
 token validation (instead of randomly generating them, we could (encrypt) the PID of the receiving token and send it,
 ot send a text ecrypted using the PID of the receving process as a key. IDK :-? )
  */
-func registerTokenCallback(self *State, message string)  {
+func leaderTokenCallback(self *State, message string)  {
 	if strings.Index(message, "token") == -1 && strings.Index(message, "pid") == -1 {
 		// this message has nothing to do with the leader election algorithm, so we just ignore it
 		return;
@@ -99,6 +100,22 @@ func registerTokenCallback(self *State, message string)  {
 	go Send(self, newToken)
 }
 
+func hasLeaderCallback(self *State, message string){
+	if self.LeaderPort != "" && self.ListenPort != self.LeaderPort{
+		//time.Sleep(5 * time.Second)
+		//self.SendConn.Close()
+		//self.SendConn = nil;
+		//self.SendPort = self.LeaderPort
+		go pingLeader(self)
+	} else
+	if self.LeaderPort != "" && self.ListenPort == self.LeaderPort {
+		//time.Sleep(5 * time.Second)
+		//self.ListenConn.Close()
+		//self.ListenConn = nil
+		//go Listen(self)
+	}
+}
+
 /*
 This function is called from the processLogic function of the app.go file and should handle the logic of starting the
 leader election algorithm whenever there is no leader present. That includes the following cases:
@@ -125,5 +142,12 @@ func chooseLeader(self *State){
 	result := Send(self, self.GenerateLeaderToken())
 	if result == -1 {
 		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
+	}
+}
+
+func pingLeader(self *State){
+	result := SendLeader(self, "#########################################################")
+	if result == -1 {
+		println("*** Leader is down ***")
 	}
 }
