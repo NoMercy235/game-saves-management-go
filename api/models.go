@@ -23,10 +23,7 @@ type State struct {
 	IsLeader bool
 	Callbacks []func(self *State, message string)
 	PID int
-	SendConn net.Conn
-	SendLeaderConn net.Conn
-	ListenConn net.Conn
-	Listener net.Listener
+	Connections map[string]net.Conn
 }
 
 

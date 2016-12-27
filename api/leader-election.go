@@ -3,6 +3,7 @@ package api
 import (
 	"strings"
 	"strconv"
+	"time"
 )
 
 //import "time"
@@ -38,7 +39,7 @@ there'll be more callbacks here, it's better to leave a single function to do th
  */
 func RegisterLeaderCallbacks(self *State){
 	self.RegisterCallback(leaderTokenCallback)
-	self.RegisterCallback(hasLeaderCallback)
+	//self.RegisterCallback(hasLeaderCallback)
 }
 
 /*
@@ -79,7 +80,8 @@ func leaderTokenCallback(self *State, message string)  {
 			// If I'm a process that become client, simply acknowledge the leader and send the message forward
 			self.LeaderPort = value
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
-			go Send(self, message)
+			go Send(self, self.SendPort, message)
+			go pingLeader(self)
 		}
 		return
 	}
@@ -97,13 +99,7 @@ func leaderTokenCallback(self *State, message string)  {
 		leaderMsg = ",leader=" + self.ListenPort
 	}
 	newToken := messageParts[0] + ",pid=" + pid + leaderMsg
-	go Send(self, newToken)
-}
-
-func hasLeaderCallback(self *State, message string){
-	if self.LeaderPort != "" && self.ListenPort != self.LeaderPort{
-		go pingLeader(self)
-	}
+	go Send(self, self.SendPort, newToken)
 }
 
 /*
@@ -129,15 +125,30 @@ CheckLeader function
  */
 func chooseLeader(self *State){
 	//Send(self, self.GenerateLeaderToken())
-	result := Send(self, self.GenerateLeaderToken())
+	result := Send(self, self.SendPort, self.GenerateLeaderToken())
 	if result == -1 {
 		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
 	}
 }
 
 func pingLeader(self *State){
-	result := SendLeader(self, "#########################################################")
-	if result == -1 {
-		println("*** Leader is down ***")
+	for {
+		time.Sleep(10 * time.Second)
+		result := Send(self, self.LeaderPort, "--- Ping from " + self.ListenPort + " ---")
+		if result == -1 {
+			println("*** Leader is down ***")
+			removeLeader(self)
+			self.SetNextNeighbor()
+			chooseLeader(self)
+		}
+	}
+}
+
+func removeLeader(self *State) {
+	for i := 0; i < len(self.AllPorts); i++ {
+		if (self.LeaderPort == self.AllPorts[i]) {
+			self.AllPorts = append(self.AllPorts[:i], self.AllPorts[i + 1:]...)
+			break;
+		}
 	}
 }

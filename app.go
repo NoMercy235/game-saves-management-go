@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"./api"
+	"net"
 )
 
 // Registering callbacks for the state from across every files
@@ -35,6 +36,7 @@ func main() {
 	self.SetNextNeighbor()
 	self.SetPID()
 	self.PrintState()
+	self.Connections = make(map[string]net.Conn)
 
 	go processLogic(self)
 
