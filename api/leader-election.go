@@ -39,15 +39,15 @@ func RegisterTokenCallback(self *State){
 func registerTokenCallback(self *State, message string)  {
 	messageParts := strings.Split(message, ",")
 	pid := messageParts[1][4:]
-	intPid, _ := strconv.Atoi(messageParts[1])
+	intPid, _ := strconv.Atoi(pid)
 	if self.PID > intPid {
 		pid = strconv.Itoa(self.PID)
 	} else
 	if self.PID == intPid {
-		// this process becomes the leader
-		println("I, " + self.ListenPort + ", am the leader")
+		// this process becomes the leader. here, the algorithm should stom
+		println("**** I, " + self.ListenPort + ", am the leader! ***")
 	}
-	newToken := messageParts[0] + "," + pid
+	newToken := messageParts[0] + ",pid=" + pid
 	go Send(self, newToken)
 }
 
@@ -59,9 +59,9 @@ func CheckLeader(self *State){
 }
 
 func chooseLeader(self *State){
-	Send(self, self.GenerateLeaderToken())
-	//result := Send(self, self.GenerateLeaderToken())
-	//if result == -1 {
-	//	println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
-	//}
+	//Send(self, self.GenerateLeaderToken())
+	result := Send(self, self.GenerateLeaderToken())
+	if result == -1 {
+		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
+	}
 }

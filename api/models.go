@@ -15,7 +15,6 @@ type State struct {
 	IsLeader bool
 	Callbacks []func(self *State, message string)
 	PID int
-	TokenChan chan string
 	SendConn net.Conn
 }
 

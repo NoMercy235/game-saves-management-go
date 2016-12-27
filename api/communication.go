@@ -29,6 +29,7 @@ func Send(self *State, message string) (int) {
 		}
 	}
 
+	println("mesage sent: " + message)
 	fmt.Fprintf(self.SendConn, message + "\n")
 	_, err := bufio.NewReader(self.SendConn).ReadString('\n')
 	if err != nil {
@@ -38,32 +39,6 @@ func Send(self *State, message string) (int) {
 	}
 	return 0
 }
-//var test int;
-//func Send(self *State, message string) (int) {
-//	println(self.ListenPort + " sends to " + self.SendPort)
-//	conn, _ := net.Dial("tcp", "localhost:" + self.SendPort)
-//
-//	if test == 0 && self.ListenPort == "8081" {
-//		test = 1
-//		fmt.Fprintf(conn, message + "\n")
-//		_, err := bufio.NewReader(conn).ReadString('\n')
-//		if err != nil {
-//			fmt.Println(err)
-//			return 0
-//		}
-//	}
-//
-//	for token := range self.TokenChan {
-//		fmt.Fprintf(conn, token + "\n")
-//		_, err := bufio.NewReader(conn).ReadString('\n')
-//		if err != nil {
-//			fmt.Println(err)
-//			break
-//		}
-//	}
-//	return 0
-//}
-
 
 // continuously listening to messages
 // onFail: return -1
@@ -76,10 +51,12 @@ func Listen(self *State) (int) {
 		println(err)
 		return -1
 	}
+	// this might be helpful in the future to send a timeout. if used, care for the delay below. it should be greater than that
 	//conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+
 	for {
 		msg, err := bufio.NewReader(conn).ReadString('\n')
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(3000 * time.Millisecond)  // This delay is just to help visualize the communication, since there are a lot of messages.
 		if err != nil {
 			conn.Close()
 			fmt.Println(err)
@@ -92,9 +69,8 @@ func Listen(self *State) (int) {
 			conn.Close()
 			break;
 		}
-		//self.TokenChan <- msg
 		for i := 0; i < len(self.Callbacks); i++ {
-			go self.Callbacks[i](self, msg[:(len(msg)-2)]) // msg[:(len(msg)-2)]) it's the msg without the '\n' from the end
+			go self.Callbacks[i](self, msg[:(len(msg)-1)]) // msg[:(len(msg)-2)]) it's the msg without the '\n' from the end
 		}
 	}
 	return 0

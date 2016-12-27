@@ -33,7 +33,6 @@ func main() {
 	self.SetNextNeighbor()
 	self.SetPID()
 	self.PrintState()
-	self.TokenChan = make(chan string)
 
 	go processLogic(self)
 
