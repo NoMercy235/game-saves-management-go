@@ -4,8 +4,13 @@ import (
 	"os"
 	"fmt"
 	"./api"
+	"log"
 )
 
+
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
 
 func processLogic(self api.State) {
 	go api.CheckLeader(self)
@@ -14,6 +19,7 @@ func processLogic(self api.State) {
 }
 
 func main() {
+
 	if len(os.Args) < 3 {
 		println("Wrong usage")
 		return

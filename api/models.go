@@ -6,4 +6,14 @@ type State struct {
 	AllPorts []string
 	LeaderPort string
 	IsLeader bool
+	LeaderSendPort string
+}
+
+type LeaderElectionMessage struct {
+	LeaderPort string
+	LeaderFound bool
+	LeaderSendPort string
+	FirstLoop bool
+	IsPing bool
+	IsPong bool
 }
