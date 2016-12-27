@@ -66,18 +66,20 @@ func registerTokenCallback(self *State, message string)  {
 	intPid, _ := strconv.Atoi(pid)
 	leaderMsg := ""
 
-	// A leader has been elected
+	// A leader has been elected, because there is a third part: leader=[leaderPort]
 	if len(messageParts) >= 3 {
 		key, value := GetKeyValuePair(messageParts[2])
-		if key == "leader" {
+		if key != "" && value != "" && key == "leader" {
+			// If I'm the process that become leader
 			if self.ListenPort == value {
 				println("*** Everyone aknowledged me as the leader! ***")
 				return
 			}
+			// If I'm a process that become client, simply acknowledge the leader and send the message forward
 			self.LeaderPort = value
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
+			go Send(self, message)
 		}
-		go Send(self, message)
 		return
 	}
 

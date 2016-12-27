@@ -30,8 +30,11 @@ func GetFunctionName(i interface{}) string {
 }
 
 func GetKeyValuePair(message string) (key string, value string) {
-	equalIndex := strings.Split(message, "=")
-	key = equalIndex[0]
-	value = equalIndex[1]
+	parts := strings.Split(message, "=")
+	if len(parts) < 2 {
+		return "", ""
+	}
+	key = parts[0]
+	value = parts[1]
 	return key, value
 }

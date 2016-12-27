@@ -67,6 +67,6 @@ This function is used in the leader election algorithm to generate a message con
 know if that's needed) along with the PID of the current process
  */
 func (this *State) GenerateLeaderToken() (string) {
-	token := "token:" + RandomString(10) + ",pid:" + strconv.Itoa(this.PID)
+	token := "token=" + RandomString(10) + ",pid=" + strconv.Itoa(this.PID)
 	return token
 }
