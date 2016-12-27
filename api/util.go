@@ -5,6 +5,7 @@ import (
 	"time"
 	"runtime"
 	"reflect"
+	"strings"
 )
 
 /*
@@ -26,4 +27,11 @@ here as a tribute.
  */
 func GetFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
+func GetKeyValuePair(message string) (key string, value string) {
+	equalIndex := strings.Split(message, "=")
+	key = equalIndex[0]
+	value = equalIndex[1]
+	return key, value
 }

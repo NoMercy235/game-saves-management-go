@@ -63,7 +63,7 @@ func Listen(self *State) (int) {
 			time.Sleep(10000 * time.Millisecond)
 			return -1
 		}
-		println("Received:" + msg)
+		println("Received:" + msg[:(len(msg)-1)])
 		conn.Write([]byte("\n"))
 		if msg == "close\n" {
 			conn.Close()

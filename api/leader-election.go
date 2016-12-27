@@ -50,6 +50,23 @@ func registerTokenCallback(self *State, message string)  {
 	messageParts := strings.Split(message, ",")
 	pid := messageParts[1][4:]
 	intPid, _ := strconv.Atoi(pid)
+	leaderMsg := ""
+
+	// A leader has been elected
+	if len(messageParts) >= 3 {
+		key, value := GetKeyValuePair(messageParts[2])
+		if key == "leader" {
+			if self.ListenPort == value {
+				println("*** Everyone aknowledged me as the leader! ***")
+				return
+			}
+			self.LeaderPort = value
+			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
+		}
+		go Send(self, message)
+		return
+	}
+
 	if self.PID > intPid {
 		pid = strconv.Itoa(self.PID)
 	} else
@@ -57,9 +74,12 @@ func registerTokenCallback(self *State, message string)  {
 		// this process becomes the leader. here, the algorithm should stop
 		// set the LeaderPort and IsLeader fields
 		// make sure everyone knows who's the leader
-		println("**** I, " + self.ListenPort + ", am the leader! ***")
+		println("*** I, " + self.ListenPort + ", am the leader! ***")
+		self.IsLeader = true
+		self.LeaderPort = self.ListenPort
+		leaderMsg = ",leader=" + self.ListenPort
 	}
-	newToken := messageParts[0] + ",pid=" + pid
+	newToken := messageParts[0] + ",pid=" + pid + leaderMsg
 	go Send(self, newToken)
 }
 
