@@ -72,7 +72,9 @@ func (this *State) GenerateLeaderToken() (string) {
 }
 
 
-
+/*
+This function removes the port given as a parameter from the array of AllPorts of a state
+ */
 func (this *State) RemovePort(port string) {
 	for i := 0; i < len(this.AllPorts); i++ {
 		if (port == this.AllPorts[i]) {

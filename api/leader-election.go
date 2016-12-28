@@ -139,6 +139,11 @@ func chooseLeader(self *State){
 	}
 }
 
+/*
+This function is called after a leader has been elected and it's role is to check the connectivity
+with the leader from time to time and, in case the leader does not respond, it initiates an algorithm
+of leader election
+ */
 func pingLeader(self *State){
 	for {
 		time.Sleep(PING_TIME)
@@ -146,15 +151,19 @@ func pingLeader(self *State){
 		if result == -1 {
 			println("*** Leader is down ***")
 			removeLeader(self)
-			self.SetNextNeighbor()
 			chooseLeader(self)
 			break
 		}
 	}
 }
 
+/*
+This function is called when a leader is declared dead to remove it from the topology array (self.AllPorts),
+reset the self.LeaderPort field and choose a new neighbor.
+ */
 func removeLeader(self *State) {
 	self.RemovePort(self.LeaderPort)
 	self.LeaderPort = ""
+	self.SetNextNeighbor()
 	self.PrintState()
 }
