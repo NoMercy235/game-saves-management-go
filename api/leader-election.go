@@ -63,6 +63,11 @@ func leaderTokenCallback(self *State, message string)  {
 		}
 	}
 
+	if self.LeaderPort != "" {
+		// A leader has already been elected
+		return
+	}
+
 	messageParts := strings.Split(message, ",")
 	_, pid := GetKeyValuePair(messageParts[1])
 	intPid, _ := strconv.Atoi(pid)
@@ -140,6 +145,7 @@ func pingLeader(self *State){
 			removeLeader(self)
 			self.SetNextNeighbor()
 			chooseLeader(self)
+			break
 		}
 	}
 }
@@ -151,4 +157,6 @@ func removeLeader(self *State) {
 			break;
 		}
 	}
+	self.LeaderPort = ""
+	self.PrintState()
 }

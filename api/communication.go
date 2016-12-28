@@ -17,23 +17,24 @@ import (
 // onSuccess: return 0
 // onFail: return -1
 func Send(self *State, port string, message string) (int) {
-	println(self.ListenPort + " sends to " + port)
+	//println(self.ListenPort + " sends to " + port)
 	if self.Connections[port] == nil {
 		var err error
 		self.Connections[port], err = net.Dial("tcp", "localhost:" + port)
 		if err != nil {
 			fmt.Println(err)
-			time.Sleep(10000 * time.Millisecond)
+			time.Sleep(5000 * time.Millisecond)
 			return -1
 		}
 	}
 
-	println("mesage sent: " + message)
+	println("mesage sent " + port + ": " + message)
 	fmt.Fprintf(self.Connections[port], message + "\n")
 	_, err := bufio.NewReader(self.Connections[port]).ReadString('\n')
 	if err != nil {
+		self.Connections[port].Close()
 		fmt.Println(err)
-		time.Sleep(10000 * time.Millisecond)
+		time.Sleep(5000 * time.Millisecond)
 		return -1
 	}
 	return 0
@@ -47,7 +48,7 @@ func Listen(self *State) (int) {
 	ln, err := net.Listen("tcp", "localhost:" + self.ListenPort)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(10000 * time.Millisecond)
+		time.Sleep(5000 * time.Millisecond)
 		return -1
 	}
 
@@ -55,6 +56,7 @@ func Listen(self *State) (int) {
 	//conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	for {
+		println("*** Accepted a connection! ***")
 		conn, _ := ln.Accept()
 		go handleConnection(self, conn)
 	}
@@ -69,7 +71,7 @@ func handleConnection(self *State, conn net.Conn){
 		if err != nil {
 			conn.Close()
 			fmt.Println(err)
-			time.Sleep(10000 * time.Millisecond)
+			time.Sleep(5000 * time.Millisecond)
 			break
 		}
 		println("Received:" + msg[:(len(msg)-1)])
