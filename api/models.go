@@ -70,3 +70,14 @@ func (this *State) GenerateLeaderToken() (string) {
 	token := "token=" + RandomString(10) + ",pid=" + strconv.Itoa(this.PID)
 	return token
 }
+
+
+
+func (this *State) RemovePort(port string) {
+	for i := 0; i < len(this.AllPorts); i++ {
+		if (port == this.AllPorts[i]) {
+			this.AllPorts = append(this.AllPorts[:i], this.AllPorts[i + 1:]...)
+			break;
+		}
+	}
+}

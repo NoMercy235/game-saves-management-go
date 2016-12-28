@@ -23,7 +23,7 @@ func Send(self *State, port string, message string) (int) {
 		self.Connections[port], err = net.Dial("tcp", "localhost:" + port)
 		if err != nil {
 			fmt.Println(err)
-			time.Sleep(5000 * time.Millisecond)
+			time.Sleep(ERR_TIME)
 			return -1
 		}
 	}
@@ -34,7 +34,7 @@ func Send(self *State, port string, message string) (int) {
 	if err != nil {
 		self.Connections[port].Close()
 		fmt.Println(err)
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(ERR_TIME)
 		return -1
 	}
 	return 0
@@ -48,7 +48,7 @@ func Listen(self *State) (int) {
 	ln, err := net.Listen("tcp", "localhost:" + self.ListenPort)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(ERR_TIME)
 		return -1
 	}
 
@@ -67,11 +67,11 @@ func Listen(self *State) (int) {
 func handleConnection(self *State, conn net.Conn){
 	for {
 		msg, err := bufio.NewReader(conn).ReadString('\n')
-		time.Sleep(500 * time.Millisecond)  // This delay is just to help visualize the communication, since there are a lot of messages.
+		time.Sleep(DELAY_TIME)  // This delay is just to help visualize the communication, since there are a lot of messages.
 		if err != nil {
 			conn.Close()
 			fmt.Println(err)
-			time.Sleep(5000 * time.Millisecond)
+			time.Sleep(ERR_TIME)
 			break
 		}
 		println("Received:" + msg[:(len(msg)-1)])
@@ -105,7 +105,7 @@ func ping(self *State, port string) {
 	conn, err := net.Dial("tcp", "localhost:" + port)
 	if err != nil {
 		fmt.Println(err)
-		time.Sleep(10000 * time.Millisecond)
+		time.Sleep(ERR_TIME)
 		return
 	}
 
@@ -115,7 +115,7 @@ func ping(self *State, port string) {
 		_, err = bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
 			fmt.Println(err)
-			time.Sleep(10000 * time.Millisecond)
+			time.Sleep(ERR_TIME)
 			return
 		}
 	}

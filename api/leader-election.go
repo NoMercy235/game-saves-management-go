@@ -63,11 +63,6 @@ func leaderTokenCallback(self *State, message string)  {
 		}
 	}
 
-	if self.LeaderPort != "" {
-		// A leader has already been elected
-		return
-	}
-
 	messageParts := strings.Split(message, ",")
 	_, pid := GetKeyValuePair(messageParts[1])
 	intPid, _ := strconv.Atoi(pid)
@@ -82,6 +77,10 @@ func leaderTokenCallback(self *State, message string)  {
 				println("*** Everyone aknowledged me as the leader! ***")
 				return
 			}
+			if self.LeaderPort != "" {
+				// A leader has already been elected
+				return
+			}
 			// If I'm a process that become client, simply acknowledge the leader and send the message forward
 			self.LeaderPort = value
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
@@ -89,12 +88,17 @@ func leaderTokenCallback(self *State, message string)  {
 			go pingLeader(self)
 		}
 		return
-	}
-
+	} else
 	if self.PID > intPid {
 		pid = strconv.Itoa(self.PID)
 	} else
 	if self.PID == intPid {
+		if self.LeaderPort != "" {
+			// A leader has already been elected. This is needed when the algorithm
+			// is initiated by more processes. In that case, a leader elects itself
+			// as the leader more than once.
+			return
+		}
 		// this process becomes the leader. here, the algorithm should stop
 		// set the LeaderPort and IsLeader fields
 		// make sure everyone knows who's the leader
@@ -119,7 +123,6 @@ func CheckLeader(self *State){
 	election algorithm only if the process is listening on port 8081. Could work without that, but it ust be tested
 	 */
 	if self.LeaderPort == "" && self.ListenPort == "8081" {
-		println("Starting leader algorithm from: " + self.ListenPort)
 		chooseLeader(self)
 	}
 }
@@ -129,7 +132,7 @@ This function simply sends a message. If there won't be any other logic necessar
 CheckLeader function
  */
 func chooseLeader(self *State){
-	//Send(self, self.GenerateLeaderToken())
+	println("Starting leader algorithm from: " + self.ListenPort)
 	result := Send(self, self.SendPort, self.GenerateLeaderToken())
 	if result == -1 {
 		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
@@ -138,7 +141,7 @@ func chooseLeader(self *State){
 
 func pingLeader(self *State){
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(PING_TIME)
 		result := Send(self, self.LeaderPort, "--- Ping from " + self.ListenPort + " ---")
 		if result == -1 {
 			println("*** Leader is down ***")
@@ -151,12 +154,7 @@ func pingLeader(self *State){
 }
 
 func removeLeader(self *State) {
-	for i := 0; i < len(self.AllPorts); i++ {
-		if (self.LeaderPort == self.AllPorts[i]) {
-			self.AllPorts = append(self.AllPorts[:i], self.AllPorts[i + 1:]...)
-			break;
-		}
-	}
+	self.RemovePort(self.LeaderPort)
 	self.LeaderPort = ""
 	self.PrintState()
 }
