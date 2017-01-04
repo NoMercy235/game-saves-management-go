@@ -24,16 +24,26 @@ Then, implement the following logic:
  P.S. the function name is just... to be there. you can organize it however you want
  */
 
+var lastCommand string
 func GenerateInput(self *State) {
 	println("*** Starting to generate input to send to " + self.LeaderPort + " ! ***")
 	for {
 		time.Sleep(MESSAGE_TIME)
+		command := ""
+		// If the leader is lost, then store the last action until a new one is found
+		// and retry sending it afterwards
+		if lastCommand == "" {
+			command = generateCommand(self)
+		} else {
+			command = lastCommand
+		}
 		if(self.LeaderPort == "") {
+			lastCommand = command
 			break
 		}
-		command := generateCommand(self)
 		//println("I am about to send: " + GetFriendlyCommand(self, command))
 		Send(self, self.LeaderPort, command)
+		lastCommand = ""
 	}
 }
 
