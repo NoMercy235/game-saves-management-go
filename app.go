@@ -12,6 +12,7 @@ import (
 // Registering callbacks for the state from across every files
 func registerAllCallbacks(self *api.State) {
 	api.RegisterLeaderCallbacks(self)
+	api.RegisterHandleInputCallbacks(self)
 }
 
 

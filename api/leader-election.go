@@ -75,6 +75,9 @@ func leaderTokenCallback(self *State, message string)  {
 			// If I'm the process that become leader
 			if self.ListenPort == value {
 				println("*** Everyone aknowledged me as the leader! ***")
+				// Now, when the HandleInput callback will be called from the
+				// Listen() function, I, as the leader will be allowed to take
+				// care of whatever came
 				return
 			}
 			if self.LeaderPort != "" {
@@ -85,7 +88,11 @@ func leaderTokenCallback(self *State, message string)  {
 			self.LeaderPort = value
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
 			go Send(self, self.SendPort, message)
+			// A client will periodically ping the leader to see if it's still alive
 			go pingLeader(self)
+			// A client will randomly generate input to be sent to the leader for processing
+			// In a real application, this operation could be very demanding, and thus, it's better
+			// to be taken care of in a client process
 			go GenerateInput(self)
 		}
 		return
