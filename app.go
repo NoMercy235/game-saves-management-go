@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"./api"
 	"net"
+	"time"
+	"math/rand"
 )
 
 // Registering callbacks for the state from across every files
@@ -17,7 +19,10 @@ func processLogic(self *api.State) {
 	registerAllCallbacks(self)
 	go api.Listen(self)
 	go api.CheckLeader(self)
-	go api.GenerateInput(self)
+
+	// This will be called after a leader has been elected
+	//go api.GenerateInput(self)
+
 	//go api.PingEveryone(self)
 	//call the other functions as they are made
 }
@@ -27,7 +32,7 @@ func main() {
 		println("Wrong usage")
 		return
 	}
-
+	rand.Seed(time.Now().UTC().UnixNano())
 	// The state was changed to a pointer to allow its manipulation within functions
 	var self *api.State = new(api.State)
 	self.ListenPort = os.Args[1]

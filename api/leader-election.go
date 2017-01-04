@@ -86,6 +86,7 @@ func leaderTokenCallback(self *State, message string)  {
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
 			go Send(self, self.SendPort, message)
 			go pingLeader(self)
+			go GenerateInput(self)
 		}
 		return
 	} else

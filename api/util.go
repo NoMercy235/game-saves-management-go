@@ -38,3 +38,14 @@ func GetKeyValuePair(message string) (key string, value string) {
 	value = parts[1]
 	return key, value
 }
+
+/*
+The original version of a command is too cluttered to display in terminal so use this functions to
+get a friendlier version
+ */
+func GetFriendlyCommand(self *State, command string) (friendlyCommand string) {
+	parts := strings.Split(command, ",")
+	_, tag := GetKeyValuePair(parts[1])
+	friendlyCommand = parts[0] + " on " + tag
+	return friendlyCommand
+}
