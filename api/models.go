@@ -83,3 +83,19 @@ func (this *State) RemovePort(port string) {
 		}
 	}
 }
+
+
+/*********************************    Command Struct      ****************************************/
+type Command struct {
+	Action string
+	Filename string
+	Tag string
+	Data string
+}
+
+/*
+This function removes the port given as a parameter from the array of AllPorts of a state
+ */
+func (this *Command) MakeSave() string {
+	return this.Tag + " : " + this.Data
+}

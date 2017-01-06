@@ -27,21 +27,22 @@ to the process that requested it (I wonder how that's done :-?)
  this, but if you don't remember, check the courses.
  */
 
-func extractCommand (message string) (filename string, tag string, data string) {
+func extractCommand (message string) (command Command) {
 	parts := strings.Split(message, ",")
-	_, filename = GetKeyValuePair(parts[1])
-	_, tag = GetKeyValuePair(parts[2])
+	_, command.Action = GetKeyValuePair(parts[0])
+	_, command.Filename = GetKeyValuePair(parts[1])
+	_, command.Tag = GetKeyValuePair(parts[2])
 	if len(parts) > 3 {
 		for i := 3; i < len(parts); i ++ {
-			data = data + parts[i]
+			command.Data = command.Data + parts[i]
 			if i < len(parts) - 1 {
-				data = data + ","
+				command.Data = command.Data + ","
 			}
 		}
 	} else {
-		data = ""
+		command.Data = ""
 	}
-	return filename, tag, data
+	return command
 }
 
 func validateCommand (message string) bool {
@@ -56,18 +57,24 @@ func registerHandleInput(self *State, message string) {
 	if !validateCommand(message) {
 		return
 	}
-	filename, tag, data := extractCommand(message)
-	println("Am extras:   " + filename + "  " + tag + "  " + data)
-}
-
-
-func check(e error) {
-	if e != nil {
-		panic(e)
+	command := extractCommand(message)
+	if command.Action == "write" {
+		write(self, command)
+	} else {
+		read(self, command);
 	}
 }
 
-func write(state *State, message string) {
-	//err := ioutil.WriteFile("/tmp/dat1", d1, 0644)
-	//check(err)
+func write(state *State, command Command) {
+	CreateFile(command)
+	WriteFile(command)
+}
+
+func read(state *State, command Command) {
+	// This should be save = .... , but...
+	_ := ReadFile(command)
+	// after reading the contents of a file, the server should send back the information
+	// to the process (port) that requested iet.
+	// I have yet to discover how to get the port of someone that connected to the
+	// server. Need to solve the problem
 }
