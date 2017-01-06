@@ -94,7 +94,7 @@ type Command struct {
 }
 
 /*
-This function removes the port given as a parameter from the array of AllPorts of a state
+This function generates a save from a command
  */
 func (this *Command) MakeSave() string {
 	return this.Tag + " : " + this.Data

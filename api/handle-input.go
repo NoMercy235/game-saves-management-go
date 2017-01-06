@@ -70,11 +70,18 @@ func write(state *State, command Command) {
 	WriteFile(command)
 }
 
+/*
+This won't be used until the commands will not be human readable.
+Why? Because a read command will always attempt to read from a random file that does not exist.
+Solution? Instead of making random filenames and tags, make an array with some hardcoded
+filenames and tags and just pick a random index to choose from that array.
+ */
 func read(state *State, command Command) {
 	// This should be save = .... , but...
-	_ := ReadFile(command)
+	//x := ReadFile(command)
+	//print("SHOULD SEND BACK: " + x)
 	// after reading the contents of a file, the server should send back the information
-	// to the process (port) that requested iet.
+	// to the process (port) that requested it.
 	// I have yet to discover how to get the port of someone that connected to the
 	// server. Need to solve the problem
 }

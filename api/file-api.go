@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"io"
+	"bytes"
 )
 
 /*
@@ -55,7 +56,7 @@ func WriteFile(command Command) {
 this function reads the data from a file and returns it. currently, it can't read more
 than 1024 characters, but that should do it for our case.
  */
-func ReadFile(command Command) (text string){
+func ReadFile(command Command) (string){
 	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_RDWR, 0644)
 	checkError(err)
 	defer file.Close()
@@ -71,7 +72,9 @@ func ReadFile(command Command) (text string){
 		}
 	}
 	checkError(err)
-	return text
+
+	strlen := bytes.IndexByte(text, 0)
+	return string(text[:strlen])
 }
 
 /*
