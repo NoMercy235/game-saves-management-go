@@ -56,7 +56,7 @@ func generateCommand(self *State) string{
 	if(self.LeaderPort == ""){
 		return ""
 	}
-	actions := [2]string{"write", "read"}
+	actions := [2]string{"action=write", "action=read"}
 	var command bytes.Buffer
 	index := 0;
 	rnd := rand.Float64()

@@ -2,7 +2,6 @@ package api
 
 import (
 	"math/rand"
-	"time"
 	"runtime"
 	"reflect"
 	"strings"
@@ -12,7 +11,6 @@ import (
 This function generates a string containing random letters or numbers of a given length
  */
 func RandomString(strlen int) string {
-	rand.Seed(time.Now().UTC().UnixNano())
 	const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
 	result := make([]byte, strlen)
 	for i := 0; i < strlen; i++ {

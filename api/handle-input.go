@@ -1,5 +1,9 @@
 package api
 
+import (
+	"strings"
+)
+
 func RegisterHandleInputCallbacks(self *State) {
 	self.RegisterCallback(registerHandleInput)
 }
@@ -20,8 +24,50 @@ to the process that requested it (I wonder how that's done :-?)
 
  IMPORTANT!!!
  This is also where we should somehow implement the two-face commit thingy. We've talked about
- this, but if you don't remember, check the courses. 
+ this, but if you don't remember, check the courses.
  */
-func registerHandleInput(self *State, message string) {
 
+func extractCommand (message string) (filename string, tag string, data string) {
+	parts := strings.Split(message, ",")
+	_, filename = GetKeyValuePair(parts[1])
+	_, tag = GetKeyValuePair(parts[2])
+	if len(parts) > 3 {
+		for i := 3; i < len(parts); i ++ {
+			data = data + parts[i]
+			if i < len(parts) - 1 {
+				data = data + ","
+			}
+		}
+	} else {
+		data = ""
+	}
+	return filename, tag, data
+}
+
+func validateCommand (message string) bool {
+	parts := strings.Split(message, ",")
+	if strings.Index(parts[0], "action=") != -1 {
+		return true
+	}
+	return false
+}
+
+func registerHandleInput(self *State, message string) {
+	if !validateCommand(message) {
+		return
+	}
+	filename, tag, data := extractCommand(message)
+	println("Am extras:   " + filename + "  " + tag + "  " + data)
+}
+
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func write(state *State, message string) {
+	//err := ioutil.WriteFile("/tmp/dat1", d1, 0644)
+	//check(err)
 }
