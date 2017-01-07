@@ -3,7 +3,6 @@ import (
 	"math/rand"
 	"time"
 	"strconv"
-	"bytes"
 )
 
 /*
@@ -52,15 +51,15 @@ This is a private function that handles generation of command such as:
 write,filename='[randomString]',tag='[randomString]',life=100, money=0
 read,filename='[randomString]',tag='[randomString]'
  */
-var filename = []string{"file1", "file2", "file3", "file4", "file5", "file6", "file7", "file8", "file9", "file10"}
-var tag = []string{"level1", "level2", "level3", "level4", "level5"}
+var filenames = []string{"file1", "file2", "file3", "file4", "file5", "file6", "file7", "file8", "file9", "file10"}
+var tags = []string{"level1", "level2", "level3", "level4", "level5"}
+var actions = []string{"write", "read"}
 func generateCommand(self *State) string{
 
 	if(self.LeaderPort == ""){
 		return ""
 	}
-	actions := [2]string{"action=write", "action=read"}
-	var command bytes.Buffer
+	var command Command
 	index := 0;
 	rnd := rand.Float64()
 	if rnd < 0.5 {
@@ -68,17 +67,15 @@ func generateCommand(self *State) string{
 	} else {
 		index = 1
 	}
-	command.WriteString(actions[index])
-	command.WriteString(",filename=")
-	command.WriteString(filename[rand.Intn(len(filename))])
-	command.WriteString(",tag=")
-	command.WriteString(tag[rand.Intn(len(tag))])
+
+	command.SourcePort = self.ListenPort
+	command.Action = actions[index]
+	command.Filename = filenames[rand.Intn(len(filenames))]
+	command.Tag = tags[rand.Intn(len(tags))]
 	if(rnd < 0.5){
-		command.WriteString(",life=")
-		command.WriteString(strconv.Itoa(rand.Intn(20)))
-		command.WriteString(",money=")
-		command.WriteString(strconv.Itoa(rand.Intn(20)))
+		command.Data.Life = strconv.Itoa(rand.Intn(20))
+		command.Data.Money = strconv.Itoa(rand.Intn(20))
 	}
-	return command.String()
+	return command.ToString()
 }
 

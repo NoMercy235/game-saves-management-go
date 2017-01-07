@@ -29,18 +29,14 @@ to the process that requested it (I wonder how that's done :-?)
 
 func extractCommand (message string) (command Command) {
 	parts := strings.Split(message, ",")
-	_, command.Action = GetKeyValuePair(parts[0])
-	_, command.Filename = GetKeyValuePair(parts[1])
-	_, command.Tag = GetKeyValuePair(parts[2])
-	if len(parts) > 3 {
-		for i := 3; i < len(parts); i ++ {
-			command.Data = command.Data + parts[i]
-			if i < len(parts) - 1 {
-				command.Data = command.Data + ","
-			}
-		}
-	} else {
-		command.Data = ""
+	_, command.SourcePort = GetKeyValuePair(parts[0])
+	_, command.Action = GetKeyValuePair(parts[1])
+	_, command.Filename = GetKeyValuePair(parts[2])
+	_, command.Tag = GetKeyValuePair(parts[3])
+	if len(parts) > 4 {
+		extras := strings.Split(parts[4], "&")
+		_, command.Data.Life = GetKeyValuePair(extras[0])
+		_, command.Data.Money = GetKeyValuePair(extras[1])
 	}
 	return command
 }

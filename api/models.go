@@ -86,16 +86,31 @@ func (this *State) RemovePort(port string) {
 
 
 /*********************************    Command Struct      ****************************************/
+type GameData struct {
+	Life string
+	Money string
+}
+
+func (this *GameData) ToString() string {
+	return "life=" + this.Life + "&money=" + this.Money
+}
+
 type Command struct {
+	SourcePort string
 	Action string
 	Filename string
 	Tag string
-	Data string
+	Data GameData
 }
 
 /*
 This function generates a save from a command
  */
 func (this *Command) MakeSave() string {
-	return this.Tag + " : " + this.Data
+	return this.Tag + " : " + this.Data.ToString()
+}
+
+func (this *Command) ToString() string {
+	return "source=" + this.SourcePort + ",action=" + this.Action + ",filename=" + this.Filename +
+		"tag=" + this.Tag + "," + this.Data.ToString()
 }
