@@ -28,7 +28,7 @@ func Send(self *State, port string, message string) (int) {
 		}
 	}
 
-	println("mesage sent " + port + ": " + message)
+	println("mesage sent to " + port + ": " + message)
 	fmt.Fprintf(self.Connections[port], message + "\n")
 	_, err := bufio.NewReader(self.Connections[port]).ReadString('\n')
 	if err != nil {

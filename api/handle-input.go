@@ -72,7 +72,7 @@ func write(self *State, command Command) {
 
 func read(self *State, command Command) {
 	fileData := ReadFile(command)
-	println("SHOULD SEND BACK: " + getTagInFileData(command, fileData))
+	Send(self, command.SourcePort, getTagInFileData(command, fileData))
 }
 
 func getTagInFileData(command Command, fileData string) (string) {
