@@ -50,7 +50,7 @@ this function simply writes the save to the designated file
 func WriteFile(command Command) {
 	// open file using 0644 (see above) permission
 	if !CheckFile(command.Filename) {
-		return 
+		return
 	}
 	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_APPEND|os.O_WRONLY, 0644)
 	if hasError(err) == true {
@@ -77,7 +77,7 @@ than 1024 characters, but that should do it for our case.
 func ReadFile(command Command) (string){
 	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_RDWR, 0644)
 	if hasError(err) == true {
-		return
+		return ""
 	}
 	defer file.Close()
 
@@ -86,7 +86,7 @@ func ReadFile(command Command) (string){
 		n, err := file.Read(text)
 		if err != io.EOF {
 			if hasError(err) == true {
-				return
+				return ""
 			}
 		}
 		if n == 0 {
@@ -94,7 +94,7 @@ func ReadFile(command Command) (string){
 		}
 	}
 	if hasError(err) == true {
-		return
+		return ""
 	}
 
 	strlen := bytes.IndexByte(text, 0)
