@@ -52,8 +52,13 @@ func WriteFile(command Command) {
 	if !CheckFile(command.Filename) {
 		return
 	}
+
+	// Mutual Exclusion
+	MUTEX.Lock()
+	
 	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_APPEND|os.O_WRONLY, 0644)
 	if hasError(err) == true {
+		println("EROARE")
 		return
 	}
 	defer file.Close()
@@ -68,6 +73,8 @@ func WriteFile(command Command) {
 	if hasError(err) == true {
 		return
 	}
+
+	MUTEX.Unlock()
 }
 
 /*
