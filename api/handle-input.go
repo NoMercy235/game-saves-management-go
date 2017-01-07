@@ -66,13 +66,13 @@ func registerHandleInput(self *State, message string) {
 
 func write(self *State, command Command) {
 	CreateFile(command)
-	WriteFile(command)
+	go WriteFile(command)
 }
 
 
 func read(self *State, command Command) {
 	fileData := ReadFile(command)
-	Send(self, command.SourcePort, getTagInFileData(command, fileData))
+	go Send(self, command.SourcePort, getTagInFileData(command, fileData))
 }
 
 func getTagInFileData(command Command, fileData string) (string) {
