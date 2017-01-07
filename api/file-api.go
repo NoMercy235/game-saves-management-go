@@ -40,7 +40,7 @@ this function simply writes the save to the designated file
  */
 func WriteFile(command Command) {
 	// open file using 0644 (see above) permission
-	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_RDWR, 0644)
+	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_APPEND|os.O_WRONLY, 0644)
 	checkError(err)
 	defer file.Close()
 

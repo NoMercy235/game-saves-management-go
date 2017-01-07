@@ -43,7 +43,10 @@ func extractCommand (message string) (command Command) {
 
 func validateCommand (message string) bool {
 	parts := strings.Split(message, ",")
-	if strings.Index(parts[0], "action=") != -1 {
+	if len(parts) < 2 {
+		return false
+	}
+	if strings.Index(parts[0], "source=") != -1 && strings.Index(parts[1], "action=") != -1 {
 		return true
 	}
 	return false

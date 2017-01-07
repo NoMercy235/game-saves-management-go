@@ -112,5 +112,5 @@ func (this *Command) MakeSave() string {
 
 func (this *Command) ToString() string {
 	return "source=" + this.SourcePort + ",action=" + this.Action + ",filename=" + this.Filename +
-		"tag=" + this.Tag + "," + this.Data.ToString()
+		",tag=" + this.Tag + "," + this.Data.ToString()
 }
