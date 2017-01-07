@@ -111,6 +111,10 @@ func (this *Command) MakeSave() string {
 }
 
 func (this *Command) ToString() string {
-	return "source=" + this.SourcePort + ",action=" + this.Action + ",filename=" + this.Filename +
-		",tag=" + this.Tag + "," + this.Data.ToString()
+	firstPart := "source=" + this.SourcePort + ",action=" + this.Action + ",filename=" + this.Filename +
+		",tag=" + this.Tag
+	if this.Data.Life != "" && this.Data.Money != "" {
+		return firstPart + "," + this.Data.ToString()
+	}
+	return firstPart
 }
