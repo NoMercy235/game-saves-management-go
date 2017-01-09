@@ -11,11 +11,12 @@ import (
 This function checks if the directory for the files has been created, and it it hasn't been,
 it created it with the 0644 (READ and WRITE only for the owner) permission.
  */
-func checkDirectory(){
-	if _, err := os.Stat(FILES_PATH); os.IsNotExist(err) {
-		os.Mkdir(FILES_PATH, 0644)
+func checkDirectory(path string){
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, 0644)
 	}
 }
+
 
 func CheckFile(fileName string) bool{
 	if _, err := os.Stat(FILES_PATH + fileName); os.IsNotExist(err) {
@@ -30,7 +31,7 @@ there and then creates a file with the name filename (no extension) only if it d
 already
  */
 func CreateFile(command Command) {
-	checkDirectory()
+	checkDirectory(FILES_PATH)
 	// detect if file exists
 	var _, err = os.Stat(FILES_PATH + command.Filename)
 
