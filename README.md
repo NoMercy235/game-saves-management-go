@@ -22,3 +22,14 @@ FOR /F "tokens=5 delims= " %%P IN ('netstat -a -n -o ^| findstr :8083') DO TaskK
 
 This kills every process using port 8083.
 
+
+For testing:
+- cd to the api folder
+- go test to run every file that ends with *_test.go and execute every function inside that
+ starts with TestFunctionName (t *testing.T) { ... }
+ // or TestFoo, TestAnything. It just has to start with Test
+- go test -cover - for seeing th percentage of coverage
+// the following does not work, but the docs said it should :-?
+- if you want to see which parts are not covered use this:
+go test -coverprofile=coverage.out // or any other name
+go tool cover -html=coverage.out
