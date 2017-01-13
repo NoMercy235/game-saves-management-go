@@ -1,6 +1,9 @@
 package api
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 /*
 It should test weather or not the GetKeyValuePair function returns an expected result
@@ -21,5 +24,14 @@ func TestGetKeyValuePair(t *testing.T) {
 			t.Log("Got: key=" + key + " and val=" + val)
 			t.Fail()
 		}
+	}
+}
+
+
+func TestGetTrailingMilliseconds(t *testing.T) {
+	result := GetTrailingMilliseconds(time.Now().String())
+	if result == "" {
+		t.Log("Expected a number. Got an empty string!")
+		t.Fail()
 	}
 }
