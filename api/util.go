@@ -47,3 +47,25 @@ func GetFriendlyCommand(self *State, command string) (friendlyCommand string) {
 	friendlyCommand = parts[0] + " on " + tag
 	return friendlyCommand
 }
+
+/*
+This function gets the trailing milliseconds of a date
+ */
+func GetTrailingMilliseconds(time string) (nr string) {
+	index := strings.Index(time, ".")
+	if index == -1  {
+		nr = ""
+		return nr
+	}
+
+	time = time[index + 1 :]
+	index = strings.Index(time, " ")
+
+	aux := time[:index]
+	b := make([]rune, len(aux))
+	for i := range b {
+		b[i] = '0'
+	}
+	nr = string(b)
+	return nr
+}

@@ -13,6 +13,7 @@ import (
 func registerAllCallbacks(self *api.State) {
 	api.RegisterLeaderCallbacks(self)
 	api.RegisterHandleInputCallbacks(self)
+	api.RegisterClockSyncCallbacks(self)
 }
 
 

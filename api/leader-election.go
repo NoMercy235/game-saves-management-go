@@ -94,6 +94,8 @@ func leaderTokenCallback(self *State, message string)  {
 			// In a real application, this operation could be very demanding, and thus, it's better
 			// to be taken care of in a client process
 			go GenerateInput(self)
+			// Now that there's a leader, attempt to synchronize the clock
+			go StartClockSync(self)
 		}
 		return
 	} else
