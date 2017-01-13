@@ -38,8 +38,7 @@ func TestFileApi(t *testing.T){
 				t.Log("Expected " + c.MakeSave())
 				t.Fail()
 			}
-			// comparing with != was not behaving properly for some reason :-?
-			if strings.EqualFold(result, c.MakeSave()) {
+			if result[:(len(result) - 1)] != c.MakeSave() {
 				t.Log("Write failed.")
 				t.Log("Expected: " + c.MakeSave())
 				t.Log("Got: " + result)
