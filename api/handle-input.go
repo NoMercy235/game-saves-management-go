@@ -60,7 +60,7 @@ func registerHandleInput(self *State, message string) {
 
 	command := extractCommand(message)
 
-	if checkActionPermission(self, command) {
+	if canPerformAction(self, command) {
 		return
 	}
 
@@ -72,7 +72,7 @@ func registerHandleInput(self *State, message string) {
 }
 
 // Check if other process is having an action by asking the leader
-func checkActionPermission(self *State, command Command) bool {
+func canPerformAction(self *State, command Command) bool {
 	for i := 0; i < len(self.CommandsQueue); i++ {
 		queueCommand := self.CommandsQueue[i];
 
@@ -84,10 +84,10 @@ func checkActionPermission(self *State, command Command) bool {
 				self.CommandsQueue = append(self.CommandsQueue, command)
 			}
 					
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 func ExecuteCommands(self *State) {
