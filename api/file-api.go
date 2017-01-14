@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"io"
+	"bytes"
+	"strconv"
 )
 
 /*
@@ -104,7 +106,13 @@ func ReadFile(command Command) (string){
 		return ""
 	}
 
-	return string(text)
+	strlen := bytes.IndexByte(text, 0)
+	if strlen == -1 || strlen > len(text) {
+		print("ERROR!!! read from file " + command.Filename)
+		println(". Tag=" + command.Tag + ". Strlen=" + strconv.Itoa(strlen))
+		return ""
+	}
+	return string(text[:strlen])
 }
 
 /*
