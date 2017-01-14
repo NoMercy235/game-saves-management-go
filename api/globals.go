@@ -15,4 +15,5 @@ var PING_TIME = 10 * time.Second
 var CLOCK_SYNC_TIME = 10 * time.Second
 var MESSAGE_TIME = time.Duration(rand.Int31n(5000)) * time.Millisecond
 var MUTEX = &sync.Mutex{}
-var EXECUTE_COMMAND_DELAY = 300 * time.Millisecond
+var EXECUTE_COMMAND_DELAY = DELAY_TIME + 3000 * time.Millisecond
+var COMMAND_QUEUE_LIMIT = 100

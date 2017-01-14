@@ -3,6 +3,7 @@ package api
 import (
 	"strings"
 	"time"
+	"strconv"
 )
 
 func RegisterHandleInputCallbacks(self *State) {
@@ -54,25 +55,26 @@ func validateCommand (message string) bool {
 }
 
 func registerHandleInput(self *State, message string) {
-	if !validateCommand(message) {
+	if self.IsLeader == false || !validateCommand(message) {
 		return
 	}
 
 	command := extractCommand(message)
 
-	if canPerformAction(self, command) {
+	if !updateQueue(self, command) {
 		return
 	}
 
-	if command.Action == "write" {
-		write(self, command)
-	} else {
-		read(self, command)
-	}
+	//if command.Action == "write" {
+	//	write(self, command)
+	//} else {
+	//	read(self, command)
+	//}
+	println("Current command queue length: " + strconv.Itoa(len(self.CommandsQueue)))
 }
 
 // Check if other process is having an action by asking the leader
-func canPerformAction(self *State, command Command) bool {
+func updateQueue(self *State, command Command) bool {
 	for i := 0; i < len(self.CommandsQueue); i++ {
 		queueCommand := self.CommandsQueue[i];
 
@@ -80,14 +82,14 @@ func canPerformAction(self *State, command Command) bool {
 		if queueCommand.Filename == command.Filename {
 				
 			// Push the action to the queueCommand
-			if len(self.CommandsQueue) < 10 {
+			if len(self.CommandsQueue) < COMMAND_QUEUE_LIMIT {
 				self.CommandsQueue = append(self.CommandsQueue, command)
 			}
 					
-			return true;
+			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 func ExecuteCommands(self *State) {
