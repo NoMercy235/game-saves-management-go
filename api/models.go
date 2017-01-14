@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"fmt"
 	"net"
+	"time"
 )
 
 // This is the base structure for our application.
@@ -26,6 +27,7 @@ type State struct {
 	CommandsQueue []Command
 	PID int
 	Connections map[string]net.Conn
+	Clock InternalClock
 }
 
 
@@ -130,4 +132,24 @@ func (this *Command) ToString() string {
 		return firstPart + "," + this.Data.ToString()
 	}
 	return firstPart
+}
+
+
+/*********************************    InternalClock Struct      ****************************************/
+type InternalClock struct {
+	Clock time.Time
+	ServerRtt time.Duration
+	Synchronized bool
+}
+
+func (this *InternalClock) SetRealTime() {
+	now := time.Now()
+	this.Clock = now.Add(this.ServerRtt)
+	if this.Synchronized == false {
+		this.Synchronized = true;
+	}
+	println("----------------------------------------------")
+	println("My time is: " + this.Clock.String())
+	println("Rtt: " + this.ServerRtt.String())
+	println("----------------------------------------------")
 }
