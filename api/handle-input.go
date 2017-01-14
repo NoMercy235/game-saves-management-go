@@ -58,38 +58,30 @@ func registerHandleInput(self *State, message string) {
 	if self.IsLeader == false || !validateCommand(message) {
 		return
 	}
-
 	command := extractCommand(message)
-
-	if !updateQueue(self, command) {
-		return
-	}
-
-	//if command.Action == "write" {
-	//	write(self, command)
-	//} else {
-	//	read(self, command)
-	//}
-	println("Current command queue length: " + strconv.Itoa(len(self.CommandsQueue)))
+	updateQueue(self, command)
 }
 
 // Check if other process is having an action by asking the leader
-func updateQueue(self *State, command Command) bool {
+func updateQueue(self *State, command Command) {
+	var hasAction bool
 	for i := 0; i < len(self.CommandsQueue); i++ {
 		queueCommand := self.CommandsQueue[i];
-
 		// If command is already taken by another process
 		if queueCommand.Filename == command.Filename {
-				
 			// Push the action to the queueCommand
 			if len(self.CommandsQueue) < COMMAND_QUEUE_LIMIT {
 				self.CommandsQueue = append(self.CommandsQueue, command)
+				hasAction = true
 			}
-					
-			return false;
+			break
 		}
 	}
-	return true;
+
+	if !hasAction {
+		self.CommandsQueue = append([]Command{command}, self.CommandsQueue...)
+	}
+	println("Current command queue length: " + strconv.Itoa(len(self.CommandsQueue)))
 }
 
 func ExecuteCommands(self *State) {
