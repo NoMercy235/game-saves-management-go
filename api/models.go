@@ -89,6 +89,14 @@ func (this *State) RemovePort(port string) {
 	}
 }
 
+func (this *State) RegisterCommand(command Command, appendCommand bool) {
+	if appendCommand {
+		this.CommandsQueue = append(this.CommandsQueue, command)
+	} else {
+		this.CommandsQueue = append([]Command{command}, this.CommandsQueue...)
+	}
+}
+
 
 func (this *State) PopCommand() (command Command) {
 	if len(this.CommandsQueue) < 1 {

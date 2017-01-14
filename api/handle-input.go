@@ -80,7 +80,7 @@ func updateQueue(self *State, command Command) {
 		if queueCommand.Filename == command.Filename {
 			// Push the action to the queueCommand
 			if len(self.CommandsQueue) < COMMAND_QUEUE_LIMIT {
-				self.CommandsQueue = append(self.CommandsQueue, command)
+				self.RegisterCommand(command, true)
 				hasAction = true
 			}
 			break
@@ -88,7 +88,7 @@ func updateQueue(self *State, command Command) {
 	}
 
 	if !hasAction {
-		self.CommandsQueue = append([]Command{command}, self.CommandsQueue...)
+		self.RegisterCommand(command, false)
 	}
 	println("Current command queue length: " + strconv.Itoa(len(self.CommandsQueue)))
 }
