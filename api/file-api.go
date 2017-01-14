@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"io"
-	"bytes"
 )
 
 /*
@@ -105,8 +104,7 @@ func ReadFile(command Command) (string){
 		return ""
 	}
 
-	strlen := bytes.IndexByte(text, 0)
-	return string(text[:strlen])
+	return string(text)
 }
 
 /*
