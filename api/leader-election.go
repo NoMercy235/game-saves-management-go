@@ -75,6 +75,7 @@ func leaderTokenCallback(self *State, message string)  {
 			// If I'm the process that become leader
 			if self.ListenPort == value {
 				println("*** Everyone aknowledged me as the leader! ***")
+				go ExecuteCommands(self)
 				// Now, when the HandleInput callback will be called from the
 				// Listen() function, I, as the leader will be allowed to take
 				// care of whatever came

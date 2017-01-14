@@ -2,6 +2,7 @@ package api
 
 import (
 	"strings"
+	"time"
 )
 
 func RegisterHandleInputCallbacks(self *State) {
@@ -56,11 +57,51 @@ func registerHandleInput(self *State, message string) {
 	if !validateCommand(message) {
 		return
 	}
+
 	command := extractCommand(message)
+
+	if checkActionPermission(self, command) {
+		return
+	}
+
 	if command.Action == "write" {
 		write(self, command)
 	} else {
-		read(self, command);
+		read(self, command)
+	}
+}
+
+// Check if other process is having an action by asking the leader
+func checkActionPermission(self *State, command Command) bool {
+	for i := 0; i < len(self.CommandsQueue); i++ {
+		queueCommand := self.CommandsQueue[i];
+
+		// If command is already taken by another process
+		if queueCommand.Filename == command.Filename {
+				
+			// Push the action to the queueCommand
+			if len(self.CommandsQueue) < 10 {
+				self.CommandsQueue = append(self.CommandsQueue, command)
+			}
+					
+			return false;
+		}
+	}
+	return true;
+}
+
+func ExecuteCommands(self *State) {
+	for {
+		time.Sleep(EXECUTE_COMMAND_DELAY)
+		if len(self.CommandsQueue) != 0 {
+			command := self.PopCommand()
+
+			if command.Action == "write" {
+				write(self, command)
+			} else {
+				read(self, command)
+			}
+		}
 	}
 }
 

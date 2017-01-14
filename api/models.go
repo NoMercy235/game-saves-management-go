@@ -13,6 +13,7 @@ import (
 // AllPorts - an array containing the ports of all processes.
 // LeaderPort & IsLeader - the port of the leader and a boolean that shows if the process is a leader or not
 // Callbacks - an array of functions with a (State, string) signature. Those are used to respond to receive message events
+// CommandsQueue - a queue for the commands that will wait the other processes to finish their common action
 // PID - the PID of the process
 // SendConn - the connection used to send messages. Needed to be cached. maybe find a better (more sustainable) solution
 type State struct {
@@ -22,6 +23,7 @@ type State struct {
 	LeaderPort string
 	IsLeader bool
 	Callbacks []func(self *State, message string)
+	CommandsQueue []Command
 	PID int
 	Connections map[string]net.Conn
 }
@@ -62,6 +64,7 @@ func (this *State) RegisterCallback(function func(self *State, message string)) 
 	this.Callbacks = append(this.Callbacks, function)
 }
 
+
 /*
 This function is used in the leader election algorithm to generate a message containing  a random token (don't even
 know if that's needed) along with the PID of the current process
@@ -82,6 +85,16 @@ func (this *State) RemovePort(port string) {
 			break;
 		}
 	}
+}
+
+
+func (this *State) PopCommand() (command Command) {
+	if len(this.CommandsQueue) < 1 {
+		return command
+	}
+	command = this.CommandsQueue[0]
+	this.CommandsQueue = append(this.CommandsQueue[1:])
+	return command
 }
 
 
