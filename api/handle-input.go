@@ -25,10 +25,13 @@ to the process that requested it (I wonder how that's done :-?)
  write the contents of the message to the file as intended (for now)
 
  IMPORTANT!!!
- This is also where we should somehow implement the two-face commit thingy. We've talked about
+ This is also where we should somehow implement the two-phase commit thingy. We've talked about
  this, but if you don't remember, check the courses.
  */
 
+/*
+This function parses a command from a given string
+ */
 func extractCommand (message string) (command Command) {
 	parts := strings.Split(message, ",")
 	_, command.SourcePort = GetKeyValuePair(parts[0])
@@ -43,6 +46,9 @@ func extractCommand (message string) (command Command) {
 	return command
 }
 
+/*
+This function checks to see if a given string matches the pattern of a command
+ */
 func validateCommand (message string) bool {
 	parts := strings.Split(message, ",")
 	if len(parts) < 2 {
@@ -54,6 +60,9 @@ func validateCommand (message string) bool {
 	return false
 }
 
+/*
+This function updates the commands queue of the leader whenever it receives a command.
+ */
 func registerHandleInput(self *State, message string) {
 	if self.IsLeader == false || !validateCommand(message) {
 		return
@@ -84,6 +93,9 @@ func updateQueue(self *State, command Command) {
 	println("Current command queue length: " + strconv.Itoa(len(self.CommandsQueue)))
 }
 
+/*
+This function enters in an infinite loop that tries to execute any command it finds on a leader
+ */
 func ExecuteCommands(self *State) {
 	for {
 		time.Sleep(EXECUTE_COMMAND_DELAY)
@@ -110,6 +122,9 @@ func read(self *State, command Command) {
 	go Send(self, command.SourcePort, getTagInFileData(command, fileData))
 }
 
+/*
+This function returns the line of a file that corresponds to a given tag
+ */
 func getTagInFileData(command Command, fileData string) (string) {
 	tagIndex := strings.Index(fileData, command.Tag)
 	if tagIndex == -1 {
