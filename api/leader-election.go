@@ -72,6 +72,10 @@ func leaderTokenCallback(self *State, message string)  {
 	if len(messageParts) >= 3 {
 		key, value := GetKeyValuePair(messageParts[2])
 		if key != "" && value != "" && key == "leader" {
+			// Speed up the messages until a leader is elected and then slow
+			// down again to see the output easier
+			ChangeTime(&MESSAGE_TIME, 10, time.Second)
+
 			// If I'm the process that become leader
 			if self.ListenPort == value {
 				println("*** Everyone aknowledged me as the leader! ***")
@@ -88,7 +92,7 @@ func leaderTokenCallback(self *State, message string)  {
 			// If I'm a process that become client, simply acknowledge the leader and send the message forward
 			self.LeaderPort = value
 			println("*** I, " + self.ListenPort + ", aknowledge " + self.LeaderPort + " as the leader! ***")
-			go Send(self, self.SendPort, message)
+			go Send(self, self.SendPort, message, false)
 			// A client will periodically ping the leader to see if it's still alive
 			go pingLeader(self)
 			// A client will randomly generate input to be sent to the leader for processing
@@ -119,7 +123,7 @@ func leaderTokenCallback(self *State, message string)  {
 		leaderMsg = ",leader=" + self.ListenPort
 	}
 	newToken := messageParts[0] + ",pid=" + pid + leaderMsg
-	go Send(self, self.SendPort, newToken)
+	go Send(self, self.SendPort, newToken, true)
 }
 
 /*
@@ -144,7 +148,7 @@ CheckLeader function
  */
 func chooseLeader(self *State){
 	println("Starting leader algorithm from: " + self.ListenPort)
-	result := Send(self, self.SendPort, self.GenerateLeaderToken())
+	result := Send(self, self.SendPort, self.GenerateLeaderToken(), true)
 	if result == -1 {
 		println("\n *** Error occured when sending from [" + self.ListenPort + "] to [" + self.SendPort + "]! ***")
 	}
@@ -158,7 +162,7 @@ of leader election
 func pingLeader(self *State){
 	for {
 		time.Sleep(PING_TIME)
-		result := Send(self, self.LeaderPort, "--- Ping from " + self.ListenPort + " ---")
+		result := Send(self, self.LeaderPort, "--- Ping from " + self.ListenPort + " ---", true)
 		if result == -1 {
 			println("*** Leader is down ***")
 			removeLeader(self)

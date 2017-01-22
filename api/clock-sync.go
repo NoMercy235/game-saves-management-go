@@ -29,7 +29,7 @@ func StartClockSync(self *State) {
 		if self.LeaderPort == "" || self.IsLeader == true {
 			continue
 		}
-		go Send(self, self.LeaderPort, generateDateMessage(self))
+		go Send(self, self.LeaderPort, generateDateMessage(self), false)
 	}
 }
 
@@ -57,7 +57,7 @@ func clockLeaderSyncCallback(self *State, message string)  {
 		return
 	}
 	_, sourcePort := GetKeyValuePair(parts[0])
-	go Send(self, sourcePort, time.Now().String())
+	go Send(self, sourcePort, time.Now().String(), false)
 }
 
 func generateDateMessage(self *State) (message string) {

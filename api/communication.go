@@ -16,7 +16,7 @@ import (
 // attempts to send a message on a port
 // onSuccess: return 0
 // onFail: return -1
-func Send(self *State, port string, message string) (int) {
+func Send(self *State, port string, message string, print bool) (int) {
 	//println(self.ListenPort + " sends to " + port)
 	if self.Connections[port] == nil {
 		var err error
@@ -28,7 +28,9 @@ func Send(self *State, port string, message string) (int) {
 		}
 	}
 
-	println("mesage sent to " + port + ": " + message)
+	if print {
+		println("message sent to " + port + ": " + message)
+	}
 	fmt.Fprintf(self.Connections[port], message + "\n")
 	_, err := bufio.NewReader(self.Connections[port]).ReadString('\n')
 	if err != nil {

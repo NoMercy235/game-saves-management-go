@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"reflect"
 	"strings"
+	"time"
 )
 
 /*
@@ -68,4 +69,12 @@ func GetTrailingMilliseconds(time string) (nr string) {
 	}
 	nr = string(b)
 	return nr
+}
+
+
+/*
+Change the value of a (usually global) time.
+ */
+func ChangeTime(target *time.Duration, value int32, timeType time.Duration) {
+	*target = time.Duration(rand.Int31n(value)) * timeType + MIN_TIME
 }

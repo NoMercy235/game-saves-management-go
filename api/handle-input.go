@@ -119,7 +119,7 @@ func write(self *State, command Command) {
 
 func read(self *State, command Command) {
 	fileData := ReadFile(command)
-	go Send(self, command.SourcePort, getTagInFileData(command, fileData))
+	go Send(self, command.SourcePort, getTagInFileData(command, fileData), false)
 }
 
 /*

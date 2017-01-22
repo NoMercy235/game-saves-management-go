@@ -41,7 +41,7 @@ func GenerateInput(self *State) {
 			break
 		}
 		//println("I am about to send: " + GetFriendlyCommand(self, command))
-		go Send(self, self.LeaderPort, command)
+		go Send(self, self.ListenPort, command, false)
 		lastCommand = ""
 	}
 }
