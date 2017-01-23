@@ -152,10 +152,9 @@ func ReadFile(path string) (string){
 /*
 This function is basically useless unless someone actually would want to delete their
 saves. So I'll leave it here just in case
-IMPORTANT !!! if you ever use this, it needs to be updated
  */
-func DeleteFile(command Command, directory string) {
-	var err = os.Remove(FILES_PATH + directory + "/" + command.Filename)
+func DeleteFile(path string) {
+	var err = os.Remove(FILES_PATH + path)
 	if hasError(err) == true {
 		return
 	}

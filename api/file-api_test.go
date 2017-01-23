@@ -22,7 +22,7 @@ func TestFileApi(t *testing.T){
 
 	for _, c := range cases {
 		createFile := func(t *testing.T) {
-			CreateFile(c)
+			CreateFile(c.Filename)
 			result := CheckFile(c.Filename)
 			if result == false {
 				t.Log("Expected " + c.Filename + " to exist!")
@@ -32,8 +32,8 @@ func TestFileApi(t *testing.T){
 		createFile(t)
 
 		writeReadFile := func(t *testing.T) {
-			WriteFile(c)
-			result := ReadFile(c)
+			WriteFile(c.MakeSave(), c.Filename)
+			result := ReadFile(c.Filename)
 			if result == "" {
 				t.Log("Expected " + c.MakeSave())
 				t.Fail()
@@ -48,7 +48,7 @@ func TestFileApi(t *testing.T){
 		writeReadFile(t)
 
 		deleteFile := func(t *testing.T) {
-			DeleteFile(c)
+			DeleteFile(c.Filename)
 		}
 		deleteFile(t)
 
