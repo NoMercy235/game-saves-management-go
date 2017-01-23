@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 	"strings"
+	"regexp"
 )
 
 /*
@@ -33,8 +34,13 @@ func StartClockSync(self *State) {
 	}
 }
 
+func validateDate(message string) bool {
+	match, _ := regexp.MatchString("([0-9]+)-([0-9+])-([0-9+])", message)
+	return match
+}
+
 func clockReceivedSyncCallback(self *State, message string) {
-	if self.LeaderPort == "" || self.IsLeader == true {
+	if self.LeaderPort == "" || self.IsLeader == true || !validateDate(message) {
 		return
 	}
 	layout :=  "2006-01-02 15:04:05." + GetTrailingMilliseconds(message) + " -0700 MST"
@@ -48,7 +54,7 @@ func clockReceivedSyncCallback(self *State, message string) {
 }
 
 func clockLeaderSyncCallback(self *State, message string)  {
-	if self.IsLeader == false {
+	if self.IsLeader == false || !validateDate(message) {
 		return
 	}
 	parts := strings.Split(message, ",")
