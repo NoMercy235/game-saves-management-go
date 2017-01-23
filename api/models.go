@@ -16,7 +16,9 @@ import (
 // Callbacks - an array of functions with a (State, string) signature. Those are used to respond to receive message events
 // CommandsQueue - a queue for the commands that will wait the other processes to finish their common action
 // PID - the PID of the process
-// SendConn - the connection used to send messages. Needed to be cached. maybe find a better (more sustainable) solution
+// Connections - a map of all the connections of a process.
+// Clock - the clock of the state
+// Proposition - used in Paxos to propose and persist values
 type State struct {
 	ListenPort string
 	SendPort string
@@ -90,12 +92,20 @@ func (this *State) RemovePort(port string) {
 	}
 }
 
+/*
+This function generates a proposal. A new proposal will also increase the index value
+The proposal will look like this:
+1.8081=[command]
+ */
 func (this *State) GenerateProposal(command Command) string {
 	this.Proposition.SetProposalIndex(this)
 	this.Proposition.ProposedValue.CopyFromCommand(command)
 	return this.GetProposal(command)
 }
 
+/*
+Same as GenerateProposal, but it no longer increments the index
+ */
 func (this *State) GetProposal(command Command) string {
 	if this.Proposition.ProposedValue.IsEmpty() {
 		this.Proposition.ProposedValue.CopyFromCommand(command)
@@ -103,6 +113,9 @@ func (this *State) GetProposal(command Command) string {
 	return  this.Proposition.Index + "=[" + this.Proposition.ProposedValue.ToString() + "]"
 }
 
+/*
+Used to register a command in the CommandsQueue.
+ */
 func (this *State) RegisterCommand(command Command, appendCommand bool) {
 	if appendCommand {
 		this.CommandsQueue = append(this.CommandsQueue, command)
@@ -111,7 +124,10 @@ func (this *State) RegisterCommand(command Command, appendCommand bool) {
 	}
 }
 
-
+/*
+It gets the first command, removes it from the queue and returns it
+IMPORTANT!!! look to the usage of this function. A not persisted popped command is lost forever
+ */
 func (this *State) PopCommand() (command Command) {
 	if len(this.CommandsQueue) < 1 {
 		return command
@@ -185,6 +201,10 @@ type InternalClock struct {
 	Synchronized bool
 }
 
+/*
+This function will set the real time of the state based on the RTT it received from the server
+and set the Synchronized value to true
+ */
 func (this *InternalClock) SetRealTime() {
 	now := time.Now()
 	this.Clock = now.Add(this.ServerRtt)
@@ -212,19 +232,30 @@ func (this *Proposition) IsEmpty() bool {
 	return this.Index == "" && this.ProposedValue.IsEmpty()
 }
 
+/*
+This function generate the proposal index of form: 1.8081
+The ListenPort is used to make sure that the indexes will be unique and don't affect the indexes
+comparison, unless there is no other way.
+ */
 func (this *Proposition) SetProposalIndex(self *State) {
 	this.index += 1
 	this.Index = strconv.Itoa(this.index) + "." + self.ListenPort
 }
 
-func (this *Proposition) AcknowledgeValue() {
-	this.ChosenValue = this.ProposedValue
-	this.Votes = this.Votes + 1
-}
-
+/*
+This function clears the proposition
+ */
 func (this *Proposition) Clear(index int) {
 	this.index = index
 	this.ChosenValue = *new(Command)
 	this.ProposedValue = *new(Command)
 	this.Votes = 0
+}
+
+/*
+This function updates the proposition with a new one
+ */
+func (this *Proposition) New(index string, value Command) {
+	this.Index = index
+	this.ProposedValue.CopyFromCommand(value)
 }

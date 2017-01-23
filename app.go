@@ -23,9 +23,6 @@ func processLogic(self *api.State) {
 	go api.Listen(self)
 	go api.CheckLeader(self)
 
-	// This will be called after a leader has been elected
-	//go api.GenerateInput(self)
-
 	//go api.PingEveryone(self)
 	//call the other functions as they are made
 }
@@ -46,6 +43,8 @@ func main() {
 	self.PrintState()
 	self.Connections = make(map[string]net.Conn)
 
+	// This is done to emulate the fact that every process should read/write from
+	// it's own environment
 	api.FILES_PATH = api.FILES_PATH + self.ListenPort + "/"
 
 	go processLogic(self)

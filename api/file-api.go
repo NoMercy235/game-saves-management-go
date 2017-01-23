@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+/*
+This function is used to write anything to a file. It can write either saves or logs
+ */
 func Write(self *State, command Command, directory string) {
 	message := ""
 	path := ""
@@ -23,6 +26,9 @@ func Write(self *State, command Command, directory string) {
 	go WriteFile(message, path)
 }
 
+/*
+This function reads the content from a file and returns the data from the tag that is being searched
+ */
 func Read(self *State, command Command, directory string) {
 	fileData := ReadFile(directory + "/" + command.Filename)
 	save := getTagInFileData(command, fileData)
@@ -35,6 +41,7 @@ func Read(self *State, command Command, directory string) {
 /*
 This function checks if the directory for the files has been created, and it it hasn't been,
 it created it with the 0644 (READ and WRITE only for the owner) permission.
+Due to the last modifications, the path is actually the filepath, not the directory's, so it needs to go back one level.
  */
 func checkDirectory(path string){
 	lastSlash := strings.LastIndex(path, "/")
@@ -42,13 +49,11 @@ func checkDirectory(path string){
 	if _, err := os.Stat(mainPath); os.IsNotExist(err) {
 		os.Mkdir(mainPath, 0644)
 	}
-	//
-	//if _, err := os.Stat(path); os.IsNotExist(err) {
-	//	os.Mkdir(path, 0644)
-	//}
 }
 
-
+/*
+Simply checks if the given path is a file and if it exists
+ */
 func CheckFile(fileName string) bool{
 	if _, err := os.Stat(FILES_PATH + fileName); os.IsNotExist(err) {
 		return false
@@ -57,7 +62,7 @@ func CheckFile(fileName string) bool{
 }
 
 /*
-This function first checks to see if the /tmp directory exists before attempting to do any action
+This function first checks to see if the directory exists before attempting to do any action
 there and then creates a file with the name filename (no extension) only if it does not exist
 already
  */
@@ -77,7 +82,7 @@ func CreateFile(path string) {
 }
 
 /*
-this function simply writes the save to the designated file
+this function simply writes the message to the designated file
  */
 func WriteFile(message string, path string) {
 
@@ -147,6 +152,7 @@ func ReadFile(path string) (string){
 /*
 This function is basically useless unless someone actually would want to delete their
 saves. So I'll leave it here just in case
+IMPORTANT !!! if you ever use this, it needs to be updated
  */
 func DeleteFile(command Command, directory string) {
 	var err = os.Remove(FILES_PATH + directory + "/" + command.Filename)

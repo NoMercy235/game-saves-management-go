@@ -80,6 +80,13 @@ func ChangeTime(target *time.Duration, value int32, minValue time.Duration, time
 	*target = time.Duration(rand.Int31n(value)) * timeType + minValue * timeType
 }
 
+/*
+Used only for Paxos. Compares two indexes and returns a value to reflect the result
+-2 error
+-1 left is bigger
+0 equal
+1 right is bigger
+ */
 func CompareIndex(index1 string, index2 string) int {
 	parts1 := strings.Split(index1, ".")
 	parts2 := strings.Split(index2, ".")

@@ -24,6 +24,9 @@ func RegisterClockSyncCallbacks(self *State){
 	self.RegisterCallback(clockLeaderSyncCallback)
 }
 
+/*
+This function will attempt to sync the clock with the leader every CLOCK_SYNC_TIME seconds
+ */
 func StartClockSync(self *State) {
 	for {
 		time.Sleep(CLOCK_SYNC_TIME)
@@ -39,6 +42,10 @@ func validateDate(message string) bool {
 	return match
 }
 
+/*
+This function is called whenever a process received the clock from the server. It checks the RTT and updates the
+received clock accordingly
+ */
 func clockReceivedSyncCallback(self *State, message string) {
 	if self.LeaderPort == "" || self.IsLeader == true || !validateDate(message) {
 		return
@@ -53,6 +60,10 @@ func clockReceivedSyncCallback(self *State, message string) {
 	self.Clock.SetRealTime()
 }
 
+/*
+This function is called whenever the leader receives a clock sync request from the other processes.
+It sends back it's own time
+ */
 func clockLeaderSyncCallback(self *State, message string)  {
 	if self.IsLeader == false || !validateDate(message) {
 		return

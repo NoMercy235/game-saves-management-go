@@ -12,25 +12,6 @@ func RegisterHandleInputCallbacks(self *State) {
 }
 
 /*
-This function will take care of all the processing of the received messages. Here, the mutual
-exclusion algorithm should be used for data integrity and such. It should also (probably, I
-don't know if it's possible) use the synchronized clock (the algorithm is still not implemented)
-to process requests. But this is for another time.
-
-Basically what it has to do:
-- check if the message is a read or write action. If it is something else (not possible, but
-best check for it), simply return
-- if it's a read, should read the content of the given filename at the given tag and Send() it
-to the process that requested it (I wonder how that's done :-?)
-- if it's a write, (use the mutual exclusion to lock the file and write to it and...) simply
- write the contents of the message to the file as intended (for now)
-
- IMPORTANT!!!
- This is also where we should somehow implement the two-phase commit thingy. We've talked about
- this, but if you don't remember, check the courses.
- */
-
-/*
 This function parses a command from a given string
  */
 func extractCommand (message string) (command Command) {
@@ -63,7 +44,7 @@ func validateCommand (message string) bool {
 }
 
 /*
-This function updates the commands queue of the leader whenever it receives a command.
+This function updates the commands queue of a process whenever it receives a command.
  */
 func registerHandleInput(self *State, message string) {
 	if !validateCommand(message) {
@@ -73,19 +54,30 @@ func registerHandleInput(self *State, message string) {
 	UpdateQueue(self, command)
 }
 
-// Check if other process is having an action by asking the leader
+/*
+This function updates the command's queue with a received command. If the command wants to make
+an action
+If the received command is a read, it first checks to see if there's any other pending command
+on the same file that wants to write on it, and if there is, it adds the read command at the
+end of the queue. If it's not, it pushes it upfront
+A write command will always be pushed to the front.
+
+IMPORTANT!!! This is probably not a good idea since a write command can be starved
+A new write command should be inserted after the last write in the queue, regardless of the
+existence of any read commands
+ */
 func UpdateQueue(self *State, command Command) {
 	var hasAction bool
-	for i := 0; i < len(self.CommandsQueue); i++ {
-		queueCommand := self.CommandsQueue[i];
-		// If command is already taken by another process
-		if queueCommand.Filename == command.Filename {
-			// Push the action to the queueCommand
-			if len(self.CommandsQueue) < COMMAND_QUEUE_LIMIT {
-				self.RegisterCommand(command, true)
-				hasAction = true
+	if command.Action == "read" {
+		for i := 0; i < len(self.CommandsQueue); i++ {
+			queueCommand := self.CommandsQueue[i];
+			if queueCommand.Filename == command.Filename && queueCommand.Action == "write" {
+				if len(self.CommandsQueue) < COMMAND_QUEUE_LIMIT {
+					self.RegisterCommand(command, true)
+					hasAction = true
+				}
+				break
 			}
-			break
 		}
 	}
 
@@ -97,6 +89,12 @@ func UpdateQueue(self *State, command Command) {
 
 /*
 This function enters in an infinite loop that tries to execute any command it finds on a leader
+if a read command is received, it executes locally, since the system should be synchronized
+if a write command is received, it uses the Paxos protocol to try and make it a chosen value
+and persist it
+
+IMPORTANT!!! if a command is received, but Paxos decides that another one should be persisted,
+that command is lost forever. Should fix this, probably.
  */
 func ExecuteCommands(self *State) {
 	for {
