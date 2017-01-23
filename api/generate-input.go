@@ -28,6 +28,9 @@ func GenerateInput(self *State) {
 	println("*** Starting to generate input to send to " + self.LeaderPort + " ! ***")
 	for {
 		time.Sleep(MESSAGE_TIME)
+		// Every time a message is sent, the delay is randomized so that every
+		// process gets the chance to do something once in a while.
+		ChangeTime(&MESSAGE_TIME, 10, 10, time.Second)
 		command := ""
 		// If the leader is lost, then store the last action until a new one is found
 		// and retry sending it afterwards
@@ -41,6 +44,7 @@ func GenerateInput(self *State) {
 			break
 		}
 		//println("I am about to send: " + GetFriendlyCommand(self, command))
+		// simulate incoming of a message from a client
 		go Send(self, self.ListenPort, command, false)
 		lastCommand = ""
 	}

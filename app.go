@@ -14,6 +14,7 @@ func registerAllCallbacks(self *api.State) {
 	api.RegisterLeaderCallbacks(self)
 	api.RegisterHandleInputCallbacks(self)
 	api.RegisterClockSyncCallbacks(self)
+	api.RegisterPaxosCallbacks(self)
 }
 
 
@@ -44,6 +45,8 @@ func main() {
 	self.SetPID()
 	self.PrintState()
 	self.Connections = make(map[string]net.Conn)
+
+	api.FILES_PATH = api.FILES_PATH + self.ListenPort + "/"
 
 	go processLogic(self)
 

@@ -28,6 +28,7 @@ type State struct {
 	PID int
 	Connections map[string]net.Conn
 	Clock InternalClock
+	Proposition Proposition
 }
 
 
@@ -89,6 +90,19 @@ func (this *State) RemovePort(port string) {
 	}
 }
 
+func (this *State) GenerateProposal(command Command) string {
+	this.Proposition.SetProposalIndex(this)
+	this.Proposition.ProposedValue.CopyFromCommand(command)
+	return this.GetProposal(command)
+}
+
+func (this *State) GetProposal(command Command) string {
+	if this.Proposition.ProposedValue.IsEmpty() {
+		this.Proposition.ProposedValue.CopyFromCommand(command)
+	}
+	return  this.Proposition.Index + "=[" + this.Proposition.ProposedValue.ToString() + "]"
+}
+
 func (this *State) RegisterCommand(command Command, appendCommand bool) {
 	if appendCommand {
 		this.CommandsQueue = append(this.CommandsQueue, command)
@@ -118,6 +132,15 @@ func (this *GameData) ToString() string {
 	return "life=" + this.Life + "&money=" + this.Money
 }
 
+func (this *GameData) CopyFromGameDate(gameData GameData) {
+	this.Life = gameData.Life
+	this.Money = gameData.Money
+}
+
+func (this *GameData) IsEmpty() bool {
+	return this.Life == "" && this.Money == ""
+}
+
 type Command struct {
 	SourcePort string
 	Action string
@@ -142,6 +165,18 @@ func (this *Command) ToString() string {
 	return firstPart
 }
 
+func (this *Command) IsEmpty() bool {
+	return this.Action == "" && this.Filename == "" && this.SourcePort == "" && this.Tag == "" &&
+		&this.Data != nil && this.Data.IsEmpty()
+}
+
+func (this *Command) CopyFromCommand(command Command) {
+	this.Action = command.Action
+	this.Filename = command.Filename
+	this.SourcePort = command.SourcePort
+	this.Tag = command.Tag
+	this.Data.CopyFromGameDate(command.Data)
+}
 
 /*********************************    InternalClock Struct      ****************************************/
 type InternalClock struct {
@@ -160,4 +195,36 @@ func (this *InternalClock) SetRealTime() {
 	println("My time is: " + this.Clock.String())
 	println("Rtt: " + this.ServerRtt.String())
 	println("----------------------------------------------")
+}
+
+
+
+/*********************************    Proposition      ****************************************/
+type Proposition struct {
+	Index string
+	index int
+	ChosenValue Command
+	ProposedValue Command
+	Votes int
+}
+
+func (this *Proposition) IsEmpty() bool {
+	return this.Index == "" && this.ProposedValue.IsEmpty()
+}
+
+func (this *Proposition) SetProposalIndex(self *State) {
+	this.index += 1
+	this.Index = strconv.Itoa(this.index) + "." + self.ListenPort
+}
+
+func (this *Proposition) AcknowledgeValue() {
+	this.ChosenValue = this.ProposedValue
+	this.Votes = this.Votes + 1
+}
+
+func (this *Proposition) Clear(index int) {
+	this.index = index
+	this.ChosenValue = *new(Command)
+	this.ProposedValue = *new(Command)
+	this.Votes = 0
 }

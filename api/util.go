@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"strconv"
 )
 
 /*
@@ -75,6 +76,35 @@ func GetTrailingMilliseconds(time string) (nr string) {
 /*
 Change the value of a (usually global) time.
  */
-func ChangeTime(target *time.Duration, value int32, timeType time.Duration) {
-	*target = time.Duration(rand.Int31n(value)) * timeType + MIN_TIME
+func ChangeTime(target *time.Duration, value int32, minValue time.Duration, timeType time.Duration) {
+	*target = time.Duration(rand.Int31n(value)) * timeType + minValue * timeType
+}
+
+func CompareIndex(index1 string, index2 string) int {
+	parts1 := strings.Split(index1, ".")
+	parts2 := strings.Split(index2, ".")
+
+	if len(parts1) != 2 || len(parts2) != 2 {
+		return -2
+	}
+
+	first1 , _ := strconv.Atoi(parts1[0])
+	first2 , _ := strconv.Atoi(parts1[1])
+	second1 , _ := strconv.Atoi(parts2[0])
+	second2 , _ := strconv.Atoi(parts2[1])
+
+	if first1 < second1 {
+		return 1
+	} else
+	if first1 > second1 {
+		return -1
+	} else
+	if first2 < second2 {
+		return 1
+	} else
+	if first2 > second2 {
+		return -1
+	} else {
+		return 0
+	}
 }

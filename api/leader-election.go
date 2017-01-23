@@ -74,11 +74,11 @@ func leaderTokenCallback(self *State, message string)  {
 		if key != "" && value != "" && key == "leader" {
 			// Speed up the messages until a leader is elected and then slow
 			// down again to see the output easier
-			ChangeTime(&MESSAGE_TIME, 10, time.Second)
+			ChangeTime(&MESSAGE_TIME, 10, 10, time.Second)
 
 			// If I'm the process that become leader
 			if self.ListenPort == value {
-				println("*** Everyone aknowledged me as the leader! ***")
+				println("*** Everyone aknowledged me as the leader! ***\n")
 				go ExecuteCommands(self)
 				// Now, when the HandleInput callback will be called from the
 				// Listen() function, I, as the leader will be allowed to take
@@ -101,6 +101,8 @@ func leaderTokenCallback(self *State, message string)  {
 			go GenerateInput(self)
 			// Now that there's a leader, attempt to synchronize the clock
 			go StartClockSync(self)
+			// An acceptor can also accept commands from clients
+			go ExecuteCommands(self)
 		}
 		return
 	} else
@@ -147,6 +149,7 @@ This function simply sends a message. If there won't be any other logic necessar
 CheckLeader function
  */
 func chooseLeader(self *State){
+	ChangeTime(&MESSAGE_TIME, 10, 0, time.Millisecond)
 	println("Starting leader algorithm from: " + self.ListenPort)
 	result := Send(self, self.SendPort, self.GenerateLeaderToken(), true)
 	if result == -1 {

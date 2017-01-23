@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 	"strconv"
+	//"regexp"
 )
 
 func RegisterHandleInputCallbacks(self *State) {
@@ -50,8 +51,9 @@ func extractCommand (message string) (command Command) {
 This function checks to see if a given string matches the pattern of a command
  */
 func validateCommand (message string) bool {
+	// TODO maybe use regexp
 	parts := strings.Split(message, ",")
-	if len(parts) < 2 {
+	if len(parts) < 2 || strings.Index(message, "[") != -1 || strings.Index(message, "]") != -1 {
 		return false
 	}
 	if strings.Index(parts[0], "source=") != -1 && strings.Index(parts[1], "action=") != -1 {
@@ -64,15 +66,15 @@ func validateCommand (message string) bool {
 This function updates the commands queue of the leader whenever it receives a command.
  */
 func registerHandleInput(self *State, message string) {
-	if self.IsLeader == false || !validateCommand(message) {
+	if !validateCommand(message) {
 		return
 	}
 	command := extractCommand(message)
-	updateQueue(self, command)
+	UpdateQueue(self, command)
 }
 
 // Check if other process is having an action by asking the leader
-func updateQueue(self *State, command Command) {
+func UpdateQueue(self *State, command Command) {
 	var hasAction bool
 	for i := 0; i < len(self.CommandsQueue); i++ {
 		queueCommand := self.CommandsQueue[i];
@@ -102,24 +104,13 @@ func ExecuteCommands(self *State) {
 		if len(self.CommandsQueue) != 0 {
 			command := self.PopCommand()
 
-			if command.Action == "write" {
-				write(self, command)
+			if command.Action == "write"  {
+				go ProposeValue(self, command)
 			} else {
-				read(self, command)
+				go Read(self, command, "files")
 			}
 		}
 	}
-}
-
-func write(self *State, command Command) {
-	CreateFile(command)
-	go WriteFile(command)
-}
-
-
-func read(self *State, command Command) {
-	fileData := ReadFile(command)
-	go Send(self, command.SourcePort, getTagInFileData(command, fileData), false)
 }
 
 /*

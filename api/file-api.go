@@ -5,17 +5,47 @@ import (
 	"os"
 	"io"
 	"bytes"
-	"strconv"
+	"strings"
 )
+
+func Write(self *State, command Command, directory string) {
+	message := ""
+	path := ""
+	if directory == "files" {
+		message = command.MakeSave()
+		path = directory + "/" + command.Filename
+	} else
+	if directory == "logs"{
+		message = command.ToString()
+		path = directory + "/logs"
+	}
+	CreateFile(path)
+	go WriteFile(message, path)
+}
+
+func Read(self *State, command Command, directory string) {
+	fileData := ReadFile(directory + "/" + command.Filename)
+	save := getTagInFileData(command, fileData)
+	if save == "" {
+		save = "Save not found"
+	}
+	println("Sent to user: " + save)
+}
 
 /*
 This function checks if the directory for the files has been created, and it it hasn't been,
 it created it with the 0644 (READ and WRITE only for the owner) permission.
  */
 func checkDirectory(path string){
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, 0644)
+	lastSlash := strings.LastIndex(path, "/")
+	mainPath := path[:lastSlash]
+	if _, err := os.Stat(mainPath); os.IsNotExist(err) {
+		os.Mkdir(mainPath, 0644)
 	}
+	//
+	//if _, err := os.Stat(path); os.IsNotExist(err) {
+	//	os.Mkdir(path, 0644)
+	//}
 }
 
 
@@ -31,14 +61,14 @@ This function first checks to see if the /tmp directory exists before attempting
 there and then creates a file with the name filename (no extension) only if it does not exist
 already
  */
-func CreateFile(command Command) {
-	checkDirectory(FILES_PATH)
+func CreateFile(path string) {
+	checkDirectory(FILES_PATH + path)
 	// detect if file exists
-	var _, err = os.Stat(FILES_PATH + command.Filename)
+	var _, err = os.Stat(FILES_PATH + path)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
-		var file, err = os.Create(FILES_PATH + command.Filename)
+		var file, err = os.Create(FILES_PATH + path)
 		if hasError(err) == true {
 			return
 		}
@@ -49,27 +79,27 @@ func CreateFile(command Command) {
 /*
 this function simply writes the save to the designated file
  */
-func WriteFile(command Command) {
+func WriteFile(message string, path string) {
+
 	// open file using 0644 (see above) permission
-	if !CheckFile(command.Filename) {
+	if !CheckFile(path) || path == "" {
 		return
 	}
 
 	// Mutual Exclusion
 	MUTEX.Lock()
 	
-	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_APPEND|os.O_WRONLY, 0644)
+	var file, err = os.OpenFile(FILES_PATH + path, os.O_APPEND|os.O_WRONLY, 0644)
 	if hasError(err) == true {
 		println("EROARE")
 		return
 	}
 	defer file.Close()
 
-	_, err = file.WriteString(command.MakeSave() + "\n")
+	_, err = file.WriteString(message + "\n")
 	if hasError(err) == true {
 		return
 	}
-
 	// save changes
 	err = file.Sync()
 	if hasError(err) == true {
@@ -83,8 +113,8 @@ func WriteFile(command Command) {
 this function reads the data from a file and returns it. currently, it can't read more
 than 1024 characters, but that should do it for our case.
  */
-func ReadFile(command Command) (string){
-	var file, err = os.OpenFile(FILES_PATH + command.Filename, os.O_RDWR, 0644)
+func ReadFile(path string) (string){
+	var file, err = os.OpenFile(FILES_PATH + path, os.O_RDWR, 0644)
 	if hasError(err) == true {
 		return ""
 	}
@@ -108,8 +138,7 @@ func ReadFile(command Command) (string){
 
 	strlen := bytes.IndexByte(text, 0)
 	if strlen == -1 || strlen > len(text) {
-		print("ERROR!!! read from file " + command.Filename)
-		println(". Tag=" + command.Tag + ". Strlen=" + strconv.Itoa(strlen))
+		print("ERROR!!! read from file " + file.Name())
 		return ""
 	}
 	return string(text[:strlen])
@@ -119,8 +148,8 @@ func ReadFile(command Command) (string){
 This function is basically useless unless someone actually would want to delete their
 saves. So I'll leave it here just in case
  */
-func DeleteFile(command Command) {
-	var err = os.Remove(FILES_PATH + command.Filename)
+func DeleteFile(command Command, directory string) {
+	var err = os.Remove(FILES_PATH + directory + "/" + command.Filename)
 	if hasError(err) == true {
 		return
 	}
