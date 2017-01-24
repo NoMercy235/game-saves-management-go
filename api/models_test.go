@@ -159,3 +159,38 @@ func TestInternalClock(t *testing.T) {
 		setRealTime(t, clock)
 	}
 }
+
+
+func TestProposition(t *testing.T) {
+	var self State
+	self.ListenPort = "8081"
+
+	var command Command
+	command.Action = "write"
+
+	propositions := []Proposition{}
+	var proposition Proposition
+	//proposition.SetProposalIndex(self)
+	propositions = append(propositions, proposition)
+
+	for _, proposition := range propositions {
+		isEmpty := func (t *testing.T, proposition Proposition) {
+			result := proposition.IsEmpty()
+			if !result {
+				t.Log("Expected proposition to be empty")
+				t.Fail()
+			}
+		}
+		isEmpty(t, proposition)
+
+		setProposalIndex := func (t *testing.T, proposition Proposition) {
+			proposition.SetProposalIndex(self)
+			if proposition.Index != "1.8081" {
+				t.Log("Expected index to be 1.8081")
+				t.Log("Got: " + proposition.Index)
+				t.Fail()
+			}
+		}
+		setProposalIndex(t, proposition)
+	}
+}
