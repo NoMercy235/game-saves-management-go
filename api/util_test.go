@@ -3,6 +3,7 @@ package api
 import (
 	"testing"
 	"time"
+	"strconv"
 )
 
 /*
@@ -33,5 +34,26 @@ func TestGetTrailingMilliseconds(t *testing.T) {
 	if result == "" {
 		t.Log("Expected a number. Got an empty string!")
 		t.Fail()
+	}
+}
+
+func TestCompareIndex(t *testing.T) {
+	type Case struct {
+		firstIndex string
+		secondIndex string
+		expected int
+	}
+	cases := []Case {
+		{ "1.8081", "1.8082", 1 },
+		{ "3.8081", "1.8082", -1 },
+		{ "1.8082", "1.8082", 0 },
+		{ "1.808.2", "1.8082", -2 },
+	}
+	for _, c := range cases {
+		result := CompareIndex(c.firstIndex, c.secondIndex)
+		if result != c.expected {
+			t.Log("Expected: " + strconv.Itoa(c.expected))
+			t.Log("Got: " + strconv.Itoa(result))
+		}
 	}
 }
