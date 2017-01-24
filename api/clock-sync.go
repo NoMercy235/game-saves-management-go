@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 	"strings"
-	"regexp"
+	//"regexp"
 )
 
 /*
@@ -33,13 +33,15 @@ func StartClockSync(self *State) {
 		if self.LeaderPort == "" || self.IsLeader == true {
 			continue
 		}
-		go Send(self, self.LeaderPort, generateDateMessage(self), false)
+		self.Clock.StartedSyncTime = time.Now()
+		Send(self, self.LeaderPort, self.GenerateDateMessage(), true)
 	}
 }
 
 func validateDate(message string) bool {
-	match, _ := regexp.MatchString("([0-9]+)-([0-9+])-([0-9+])", message)
-	return match
+	//match, _ := regexp.MatchString("source=([0-9]+),date=([0-9]+)-([0-9+])-([0-9+])", message)
+	//return match
+	return strings.Index(message, "source=") != -1 && strings.Index(message, "date=") != -1
 }
 
 /*
@@ -50,13 +52,15 @@ func clockReceivedSyncCallback(self *State, message string) {
 	if self.LeaderPort == "" || self.IsLeader == true || !validateDate(message) {
 		return
 	}
-	layout :=  "2006-01-02 15:04:05." + GetTrailingMilliseconds(message) + " -0700 MST"
-	clock, err := time.Parse(layout, message)
+	parts := strings.Split(message, ",")
+	_, date := GetKeyValuePair(parts[1])
+	layout :=  "2006-01-02 15:04:05." + GetTrailingMilliseconds(date) + " -0700 MST"
+	_, err := time.Parse(layout, date)
 	if err != nil {
 		self.Clock.Synchronized = false
 		return
 	}
-	self.Clock.ServerRtt = time.Since(clock)
+	self.Clock.ServerRtt = time.Since(self.Clock.StartedSyncTime) / 2
 	self.Clock.SetRealTime()
 }
 
@@ -69,14 +73,6 @@ func clockLeaderSyncCallback(self *State, message string)  {
 		return
 	}
 	parts := strings.Split(message, ",")
-	if len(parts) != 2 || strings.Index(parts[0], "source=") == -1 || strings.Index(parts[1], "date=") == -1 {
-		// message not related to clock sync
-		return
-	}
 	_, sourcePort := GetKeyValuePair(parts[0])
-	go Send(self, sourcePort, time.Now().String(), false)
-}
-
-func generateDateMessage(self *State) (message string) {
-	return "source=" + self.ListenPort + ",date=" + time.Now().String()
+	go Send(self, sourcePort, self.GenerateDateMessage(), false)
 }

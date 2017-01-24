@@ -137,6 +137,9 @@ func (this *State) PopCommand() (command Command) {
 	return command
 }
 
+func (this *State) GenerateDateMessage() string {
+	return "source=" + this.ListenPort + ",date=" + time.Now().String()
+}
 
 /*********************************    Command Struct      ****************************************/
 type GameData struct {
@@ -197,6 +200,7 @@ func (this *Command) CopyFromCommand(command Command) {
 /*********************************    InternalClock Struct      ****************************************/
 type InternalClock struct {
 	Clock time.Time
+	StartedSyncTime time.Time
 	ServerRtt time.Duration
 	Synchronized bool
 }
